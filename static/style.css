@@ -25,14 +25,21 @@ body {
 /* Chat header */
 .chat-header {
     text-align: center;
-    padding: 15px;
-    font-size: 24px;
+    padding: 5px;
+    font-size: 10px;
     font-weight: bold;
-    background: linear-gradient(90deg, #ff512f, #dd2476);
+    background: linear-gradient(to right, #ff4500, #e91e63);
     color: white;
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
-    box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Subheading below the title */
+.subheading {
+    font-size: 18px;
+    font-weight: normal;
+    margin-top: 5px;
+    color: rgba(255, 255, 255, 0.8); /* Slightly lighter text */
 }
 
 /* Chat box */
