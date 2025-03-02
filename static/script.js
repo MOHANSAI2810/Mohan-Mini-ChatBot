@@ -1,37 +1,42 @@
-function appendMessage(content, sender) {
+function appendMessage(content, sender, codeBlocks = []) {
     const chatBox = document.getElementById("chat-box");
     const messageDiv = document.createElement("div");
     messageDiv.classList.add("message", sender);
-
     chatBox.appendChild(messageDiv);
 
-    // Detect and separate code snippets from normal text
-    let parts = content.split(/<pre><code>|<\/code><\/pre>/);
-    let isCodeBlock = false;
+    let messageParts = content.split("[CODE_BLOCK]"); // Custom separator
 
-    parts.forEach((part, index) => {
-        if (part.trim() === "") return;
-        if (isCodeBlock) {
-            appendCodeSnippet(part.trim(), messageDiv);
-        } else {
-            messageDiv.innerHTML += part.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>") + "<br>";
+    messageParts.forEach((part, index) => {
+        // Create text span for normal message content
+        if (part.trim()) {
+            const textSpan = document.createElement("span");
+            textSpan.classList.add("text-message");
+            textSpan.innerHTML = part.replace(/\n/g, "<br>"); // Preserve line breaks
+            messageDiv.appendChild(textSpan);
         }
-        isCodeBlock = !isCodeBlock; // Toggle between text and code
+
+        // Insert code block in between text parts
+        if (index < codeBlocks.length) {
+            const codeContainer = document.createElement("div");
+            codeContainer.classList.add("code-box");
+
+            const copyButton = document.createElement("button");
+            copyButton.classList.add("copy-btn");
+            copyButton.innerText = "Copy";
+            copyButton.onclick = function () { copyToClipboard(copyButton); };
+
+            const pre = document.createElement("pre");
+            const codeElement = document.createElement("code");
+            codeElement.innerText = codeBlocks[index].trim();
+            pre.appendChild(codeElement);
+            codeContainer.appendChild(copyButton);
+            codeContainer.appendChild(pre);
+
+            messageDiv.appendChild(codeContainer);
+        }
     });
 
     chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-function appendCodeSnippet(code, parentDiv) {
-    const codeDiv = document.createElement("div");
-    codeDiv.classList.add("code-box");
-
-    codeDiv.innerHTML = `
-        <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
-        <pre><code>${code}</code></pre>
-    `;
-
-    parentDiv.appendChild(codeDiv);
 }
 
 function sendMessage() {
@@ -56,27 +61,11 @@ function sendMessage() {
     .then(response => response.json())
     .then(data => {
         document.getElementById("thinking-message").remove();
-
-        let botReply = data.reply;
-        let parentDiv = document.createElement("div");
-        parentDiv.classList.add("message", "bot-message");
-
-        appendMessage(botReply, "bot-message");
-        chatBox.appendChild(parentDiv);
-
-        chatBox.scrollTop = chatBox.scrollHeight;
+        appendMessage(data.reply, "bot-message", data.code);
     })
     .catch(error => {
         document.getElementById("thinking-message").remove();
         console.log(error);
-    });
-}
-
-function copyToClipboard(button) {
-    const codeElement = button.nextElementSibling;
-    navigator.clipboard.writeText(codeElement.innerText).then(() => {
-        button.innerText = "Copied!";
-        setTimeout(() => button.innerText = "Copy", 2000);
     });
 }
 

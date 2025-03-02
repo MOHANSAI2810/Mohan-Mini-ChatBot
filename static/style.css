@@ -12,7 +12,18 @@ body {
     background-repeat: no-repeat;
     background-size: cover;
 }
-
+.bold {
+    font-weight: bold;
+}
+.site-icon {
+    width: 100px;  /* Adjust size as needed */
+    height: 100px;
+    border-radius: 100%;  /* Makes it circular */
+    position: absolute;
+    top: 4%;
+    right: 0.5%;
+    object-fit: cover; /* Ensures the image fits well */
+}
 /* Chat container */
 .chat-container {
     width: 100%;
@@ -27,7 +38,23 @@ body {
     flex-direction: column;
     position: absolute;
     top: 50%;
-    right: 3%; /* Adjust this value as needed */
+    right: 0%; /* Adjust this value as needed */
+    transform: translate(0%,-50%);
+}
+.history-store{
+    width: 29%;
+    max-width: 1000px;
+    height: 93vh;
+    background: rgba(255, 255, 255, 0.07);
+    border-radius: 15px;
+    backdrop-filter: blur(15px);
+    border: 2px solid rgba(222, 255, 5, 0.979);
+    box-shadow: 0px 10px 25px rgba(255, 105, 30, 0.3);
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 50%;
+    left: 1%; /* Adjust this value as needed */
     transform: translate(-3%,-50%);
 }
 .glass-effect {
@@ -49,6 +76,27 @@ body {
     color: white;
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
+    width: 90%;
+}
+.history-header{
+    text-align: center;
+    padding: 5px;
+    font-size: 10px;
+    font-weight: bold;
+    background: linear-gradient(to right, #ff4500, #e91e63);
+    color: white;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    width: 100%;
+    
+}
+.history-message {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 10px;
+    margin: 5px;
+    border-radius: 8px;
+    font-size: 14px;
+    color: white;
 }
 
 /* Subheading below the title */
