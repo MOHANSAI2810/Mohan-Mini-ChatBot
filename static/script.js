@@ -128,7 +128,6 @@ document.getElementById("user-input").addEventListener("keydown", function(e) {
     }
 });
 
-// Fetch and display the history when the page loads
 window.onload = function() {
     fetch('/get_history')
         .then(response => response.json())
@@ -140,13 +139,14 @@ window.onload = function() {
                     historyButton.classList.add("history-button");
                     historyButton.innerText = chat.date;  // Show the date of the chat
                     historyButton.onclick = () => loadChatHistory(chat.chat_id); // On click, load history
-                    historyBox.appendChild(historyButton);
+
+                    // Insert the new history button at the top
+                    historyBox.insertBefore(historyButton, historyBox.firstChild);
                 });
             }
         })
         .catch(error => console.error('Error fetching history:', error));
 };
-
 // Function to load chat history into the chat box
 function loadChatHistory(chatId) {
     fetch(`/load_chat_history/${chatId}`)

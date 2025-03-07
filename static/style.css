@@ -81,6 +81,7 @@ body {
 .history-button {
     display: block;
     background-color: #FF4500;
+    width: 450px;
     color: white;
     padding: 10px;
     margin: 5px;
