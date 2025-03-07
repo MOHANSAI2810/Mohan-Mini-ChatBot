@@ -1,4 +1,4 @@
-function appendMessage(content, sender, codeBlocks = []) {
+function appendMessage(content, sender, codeBlocks = [], isHistory = false) {
     const chatBox = document.getElementById("chat-box");
     const messageDiv = document.createElement("div");
     messageDiv.classList.add("message", sender);
@@ -13,40 +13,49 @@ function appendMessage(content, sender, codeBlocks = []) {
         if (part) {
             const textSpan = document.createElement("span");
             textSpan.classList.add("text-message");
-            textSpan.innerHTML = "";
             messageDiv.appendChild(textSpan);
 
-            // Ensure proper bold formatting and newlines
             let formattedPart = part
                 .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
                 .replace(/\n/g, "<br>");
 
-            let i = 0;
-            function typeLetter() {
-                if (i < formattedPart.length) {
-                    if (formattedPart.substring(i, i + 3) === "<b>") {
-                        textSpan.innerHTML += "<b>";
-                        i += 3;
-                    } else if (formattedPart.substring(i, i + 4) === "</b>") {
-                        textSpan.innerHTML += "</b>";
-                        i += 4;
-                    } else if (formattedPart.substring(i, i + 4) === "<br>") {
-                        textSpan.innerHTML += "<br>";
-                        i += 4;
-                    } else {
-                        textSpan.innerHTML += formattedPart[i];
-                        i++;
-                    }
-                    setTimeout(typeLetter, 10);
+            if (isHistory) {
+                // If loading history, display all at once
+                textSpan.innerHTML = formattedPart;
+                if (index < codeBlocks.length) {
+                    typeCode(index);
                 } else {
-                    if (index < codeBlocks.length) {
-                        typeCode(index);
+                    typeText(index + 1);
+                }
+            } else {
+                // If normal chat, display letter by letter
+                let i = 0;
+                function typeLetter() {
+                    if (i < formattedPart.length) {
+                        if (formattedPart.substring(i, i + 3) === "<b>") {
+                            textSpan.innerHTML += "<b>";
+                            i += 3;
+                        } else if (formattedPart.substring(i, i + 4) === "</b>") {
+                            textSpan.innerHTML += "</b>";
+                            i += 4;
+                        } else if (formattedPart.substring(i, i + 4) === "<br>") {
+                            textSpan.innerHTML += "<br>";
+                            i += 4;
+                        } else {
+                            textSpan.innerHTML += formattedPart[i];
+                            i++;
+                        }
+                        setTimeout(typeLetter, 10);
                     } else {
-                        typeText(index + 1);
+                        if (index < codeBlocks.length) {
+                            typeCode(index);
+                        } else {
+                            typeText(index + 1);
+                        }
                     }
                 }
+                typeLetter();
             }
-            typeLetter();
         } else if (index < codeBlocks.length) {
             typeCode(index);
         }
@@ -67,17 +76,24 @@ function appendMessage(content, sender, codeBlocks = []) {
         codeContainer.appendChild(pre);
         messageDiv.appendChild(codeContainer);
 
-        let j = 0;
-        function typeCodeLetter() {
-            if (j < codeBlocks[index].length) {
-                codeElement.innerHTML += codeBlocks[index][j];
-                j++;
-                setTimeout(typeCodeLetter, 5);
-            } else {
-                typeText(index + 1);
+        if (isHistory) {
+            // Display full code instantly when loading history
+            codeElement.innerHTML = codeBlocks[index];
+            typeText(index + 1);
+        } else {
+            // Letter-by-letter display for normal chat
+            let j = 0;
+            function typeCodeLetter() {
+                if (j < codeBlocks[index].length) {
+                    codeElement.innerHTML += codeBlocks[index][j];
+                    j++;
+                    setTimeout(typeCodeLetter, 5);
+                } else {
+                    typeText(index + 1);
+                }
             }
+            typeCodeLetter();
         }
-        typeCodeLetter();
 
         copyButton.onclick = function () {
             navigator.clipboard.writeText(codeBlocks[index]).then(() => {
@@ -90,6 +106,18 @@ function appendMessage(content, sender, codeBlocks = []) {
     typeText(0);
     chatBox.scrollTop = chatBox.scrollHeight;
 }
+function confirmLogout() {
+    document.getElementById("logout-modal").style.display = "flex";
+}
+
+function closeModal() {
+    document.getElementById("logout-modal").style.display = "none";
+}
+
+function logout() {
+    window.location.href = "/logout"; // Redirect to logout route
+}
+
 
 function sendMessage() {
     const userInput = document.getElementById("user-input");
