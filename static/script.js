@@ -6,36 +6,88 @@ function appendMessage(content, sender, codeBlocks = []) {
 
     let messageParts = content.split("[CODE_BLOCK]"); // Custom separator
 
-    messageParts.forEach((part, index) => {
-        // Create text span for normal message content
-        if (part.trim()) {
+    function typeText(index) {
+        if (index >= messageParts.length) return; // Stop when all parts are processed
+
+        const part = messageParts[index].trim();
+        if (part) {
             const textSpan = document.createElement("span");
             textSpan.classList.add("text-message");
-            textSpan.innerHTML = part.replace(/\n/g, "<br>"); // Preserve line breaks
+            textSpan.innerHTML = "";
             messageDiv.appendChild(textSpan);
+
+            // Ensure proper bold formatting and newlines
+            let formattedPart = part
+                .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
+                .replace(/\n/g, "<br>");
+
+            let i = 0;
+            function typeLetter() {
+                if (i < formattedPart.length) {
+                    if (formattedPart.substring(i, i + 3) === "<b>") {
+                        textSpan.innerHTML += "<b>";
+                        i += 3;
+                    } else if (formattedPart.substring(i, i + 4) === "</b>") {
+                        textSpan.innerHTML += "</b>";
+                        i += 4;
+                    } else if (formattedPart.substring(i, i + 4) === "<br>") {
+                        textSpan.innerHTML += "<br>";
+                        i += 4;
+                    } else {
+                        textSpan.innerHTML += formattedPart[i];
+                        i++;
+                    }
+                    setTimeout(typeLetter, 10);
+                } else {
+                    if (index < codeBlocks.length) {
+                        typeCode(index);
+                    } else {
+                        typeText(index + 1);
+                    }
+                }
+            }
+            typeLetter();
+        } else if (index < codeBlocks.length) {
+            typeCode(index);
         }
+    }
 
-        // Insert code block in between text parts
-        if (index < codeBlocks.length) {
-            const codeContainer = document.createElement("div");
-            codeContainer.classList.add("code-box");
+    function typeCode(index) {
+        const codeContainer = document.createElement("div");
+        codeContainer.classList.add("code-box");
 
-            const copyButton = document.createElement("button");
-            copyButton.classList.add("copy-btn");
-            copyButton.innerText = "Copy";
-            copyButton.onclick = function () { copyToClipboard(copyButton); };
+        const copyButton = document.createElement("button");
+        copyButton.classList.add("copy-btn");
+        copyButton.innerText = "Copy";
 
-            const pre = document.createElement("pre");
-            const codeElement = document.createElement("code");
-            codeElement.innerText = codeBlocks[index].trim();
-            pre.appendChild(codeElement);
-            codeContainer.appendChild(copyButton);
-            codeContainer.appendChild(pre);
+        const pre = document.createElement("pre");
+        const codeElement = document.createElement("code");
+        pre.appendChild(codeElement);
+        codeContainer.appendChild(copyButton);
+        codeContainer.appendChild(pre);
+        messageDiv.appendChild(codeContainer);
 
-            messageDiv.appendChild(codeContainer);
+        let j = 0;
+        function typeCodeLetter() {
+            if (j < codeBlocks[index].length) {
+                codeElement.innerHTML += codeBlocks[index][j];
+                j++;
+                setTimeout(typeCodeLetter, 5);
+            } else {
+                typeText(index + 1);
+            }
         }
-    });
+        typeCodeLetter();
 
+        copyButton.onclick = function () {
+            navigator.clipboard.writeText(codeBlocks[index]).then(() => {
+                copyButton.innerText = "Copied!";
+                setTimeout(() => (copyButton.innerText = "Copy"), 1500);
+            }).catch(err => console.error("Copy failed:", err));
+        };
+    }
+
+    typeText(0);
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
@@ -76,7 +128,41 @@ document.getElementById("user-input").addEventListener("keydown", function(e) {
     }
 });
 
+// Fetch and display the history when the page loads
 window.onload = function() {
-    const chatHeader = document.querySelector(".chat-header");
-    if (chatHeader) chatHeader.style.animation = "fadeIn 2s ease-in-out";
+    fetch('/get_history')
+        .then(response => response.json())
+        .then(data => {
+            const historyBox = document.getElementById('history-box');
+            if (data.history) {
+                data.history.forEach(chat => {
+                    const historyButton = document.createElement("button");
+                    historyButton.classList.add("history-button");
+                    historyButton.innerText = chat.date;  // Show the date of the chat
+                    historyButton.onclick = () => loadChatHistory(chat.chat_id); // On click, load history
+                    historyBox.appendChild(historyButton);
+                });
+            }
+        })
+        .catch(error => console.error('Error fetching history:', error));
 };
+
+// Function to load chat history into the chat box
+function loadChatHistory(chatId) {
+    fetch(`/load_chat_history/${chatId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.chat_history) {
+                // Clear the current chat box
+                const chatBox = document.getElementById("chat-box");
+                chatBox.innerHTML = '';
+                
+                // Append the chat history messages
+                data.chat_history.forEach(entry => {
+                    appendMessage(entry.user, "user-message");
+                    appendMessage(entry.bot, "bot-message", entry.code);
+                });
+            }
+        })
+        .catch(error => console.error('Error loading chat history:', error));
+}

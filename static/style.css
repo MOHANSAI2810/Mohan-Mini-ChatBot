@@ -78,6 +78,23 @@ body {
     border-top-right-radius: 15px;
     width: 90%;
 }
+.history-button {
+    display: block;
+    background-color: #FF4500;
+    color: white;
+    padding: 10px;
+    margin: 5px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.history-button:hover {
+    background-color: #e91e63;
+}
+
 .history-header{
     text-align: center;
     padding: 5px;
