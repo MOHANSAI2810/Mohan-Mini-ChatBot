@@ -117,6 +117,14 @@ function closeModal() {
 function logout() {
     window.location.href = "/logout"; // Redirect to logout route
 }
+document.addEventListener("DOMContentLoaded", function () {
+    fetch("/get-username")  // Flask route to fetch username
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("username").textContent = data.username;
+        })
+        .catch(error => console.error("Error fetching username:", error));
+});
 
 
 function sendMessage() {

@@ -94,6 +94,10 @@ def load_chat_history(chat_id):
         return jsonify({"chat_history": user_chat["chat_history"]})
     return jsonify({"error": "Chat history not found"})
 
+@app.route("/get-username")
+def get_username():
+    username = session.get("username", "Guest")  # Default to "Guest" if no user is logged in
+    return jsonify({"username": username})
 
 @app.route("/chat", methods=["POST"])
 def chat():

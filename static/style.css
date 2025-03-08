@@ -15,15 +15,7 @@ body {
 .bold {
     font-weight: bold;
 }
-.site-icon {
-    width: 100px;  /* Adjust size as needed */
-    height: 100px;
-    border-radius: 100%;  /* Makes it circular */
-    position: absolute;
-    top: 4%;
-    right: 0.5%;
-    object-fit: cover; /* Ensures the image fits well */
-}
+
 /* Chat container */
 .chat-container {
     width: 100%;
@@ -294,20 +286,68 @@ body {
 .modal-content button:last-child {
     background-color: #ccc;
 }
-.logout-btn {
-    display: block;
-    width: 100px; /* Smaller width */
-    padding: 5px 10px;
-    font-size: 12px; /* Smaller text */
-    background-color: #ff4d4d;
+.user-box {
+    position: absolute;
+    bottom: 10px; /* Adjust as needed */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%; /* Adjust width */
+    
+    padding: 15px 20px;
+    border-radius: 15px;
+    backdrop-filter: blur(15px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+    font-weight: bold;
     color: white;
+    text-transform: capitalize;
+}
+
+/* Styling for the username */
+#username {
+    font-size: 25px;
+    font-weight: bold;
+    color: #ffffff;
+}
+.site-icon {
+    width: 100px;  /* Adjust size as needed */
+    height: 100px;
+    border-radius: 100%;  /* Makes it circular */
+    position: absolute;
+    top: 4%;
+    right: 0.5%;
+    object-fit: cover; /* Ensures the image fits well */
+}
+.user_icon{
+    width: 35px;
+    height: 35px;
+    border-radius: 100%;
+}
+/* Styling for the logout button */
+.logout-btn {
+    background: linear-gradient(45deg, #ff4b2b, #ff416c);
+    
     border: none;
-    border-radius: 5px;
-    margin: 5px auto; /* Center it */
+    padding: 10px 15px;
     cursor: pointer;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
     transition: 0.3s;
 }
 
 .logout-btn:hover {
-    background-color: #cc0000;
+    background: linear-gradient(45deg, #ff2e00, #ff005e);
+    transform: scale(1.05);
+}
+
+.user-box .logout-btn {
+    background: red;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
 }

@@ -9,41 +9,43 @@
     <link rel="stylesheet" href="/static/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
 </head>
-<body>
-    
+<body>   
     <div class="chat-container glass-effect">
         <div class="chat-header">
             <h1>WELCOME TO MOHAN'S MINI CHATBOT</h1>
             <p class="subheading">Feel free to ask anything</p>
-            <button class="logout-btn" onclick="confirmLogout()">Logout</button> 
-        </div>
-        
-        
-        <div id="logout-modal" class="modal">
-            <div class="modal-content">
-                <p>Are you sure you want to logout?</p>
-                <button onclick="logout()">OK</button>
-                <button onclick="closeModal()">Cancel</button>
-            </div>
         </div>
         <div class="chat-box" id="chat-box"></div>
         <div class="input-container">
             <textarea id="user-input" placeholder="Type a message..."></textarea>
-            <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
-    
+    <div id="logout-modal" class="modal">
+        <div class="modal-content">
+            <p>Are you sure you want to logout?</p>
+            <button onclick="logout()">OK</button>
+            <button onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
     <div class="history-store glass-effect">
         <div class="history-header">
             <h1>HISTORY</h1>
             <p class="subheading">Previous chat history</p>
-            
         </div>
-        <div id="history-box"></div> <!-- This div will hold history -->
+        <div id="history-box"></div> <!-- Chat history content -->
+    
+        <!-- New username section -->
+        <div class="user-box glass-effect">
+            <img src="{{ url_for('static', filename='images/user_icon.png') }}" class="user_icon">
+            <span id="username">Guest</span>
+            <button class="logout-btn glass-effect" onclick="confirmLogout()">Logout</button>
+        </div>
     </div>
     
     
+    
     <img src="{{ url_for('static', filename='images/icon.png') }}" class="site-icon">
+    
     <script src="/static/script.js"></script>
     
 </body>
