@@ -41,8 +41,126 @@ def extract_code(response_text):
 
     return text_without_code, code_blocks
 
+import os
+import base64
+import requests
 
+# Clarifai API credentials
+CLARIFAI_API_KEY = "8da60f31881f4f0eb4696fff7c67dda9"
+CLARIFAI_MODEL_URL = "https://api.clarifai.com/v2/models/general-image-recognition/versions/aa7f35c01e0642fda5cf400f543e7c40/outputs"
 
+def analyze_image_with_clarifai(image_path):
+    """Send the image to Clarifai API and return the analysis results."""
+    with open(image_path, "rb") as image_file:
+        # Encode the image as base64
+        image_data = base64.b64encode(image_file.read()).decode("utf-8")
+
+    headers = {
+        "Authorization": f"Key {CLARIFAI_API_KEY}",
+        "Content-Type": "application/json",
+    }
+
+    payload = {
+        "inputs": [
+            {
+                "data": {
+                    "image": {
+                        "base64": image_data,
+                    }
+                }
+            }
+        ]
+    }
+
+    try:
+        response = requests.post(CLARIFAI_MODEL_URL, headers=headers, json=payload)
+        response.raise_for_status()
+        results = response.json()
+
+        # Extract concepts (labels and confidence scores) from the response
+        concepts = results["outputs"][0]["data"]["concepts"]
+        labels_with_scores = [(concept["name"], concept["value"]) for concept in concepts]
+        return labels_with_scores
+    except Exception as e:
+        print(f"Error analyzing image with Clarifai: {e}")
+        return None
+
+def generate_paragraph_with_gemini(labels_with_scores):
+    """Send the Clarifai response to Gemini API and generate a descriptive paragraph."""
+    # Format the labels and scores as a string
+    labels_text = ", ".join([f"{label} ({score * 100:.2f}%)" for label, score in labels_with_scores])
+
+    # Create a prompt for Gemini
+    prompt = f"Describe the following image contents in a paragraph: {labels_text}"
+
+    try:
+        # Generate a response using Gemini API
+        response = model.generate_content(prompt)
+        return response.text.strip()
+    except Exception as e:
+        print(f"Error generating paragraph with Gemini: {e}")
+        return None
+
+@app.route("/upload-image", methods=["POST"])
+def upload_image():
+    if "image" not in request.files:
+        return jsonify({"success": False, "error": "No image uploaded"}), 400
+
+    image = request.files["image"]
+    if image.filename == "":
+        return jsonify({"success": False, "error": "No selected file"}), 400
+
+    # Validate file type
+    allowed_extensions = {"png", "jpg", "jpeg"}
+    if "." in image.filename and image.filename.split(".")[-1].lower() in allowed_extensions:
+        # Save the image temporarily
+        image_path = os.path.join("uploads", image.filename)
+        image.save(image_path)
+
+        # Analyze the image using Clarifai API
+        labels_with_scores = analyze_image_with_clarifai(image_path)
+
+        # Clean up: Delete the temporary image file
+        os.remove(image_path)
+
+        if labels_with_scores:
+            # Send the Clarifai response to Gemini API
+            paragraph = generate_paragraph_with_gemini(labels_with_scores)
+
+            if paragraph:
+                # Store the file name and Gemini response in MongoDB
+                username = session.get("username")
+                if not username:
+                    return jsonify({"success": False, "error": "User not logged in"}), 401
+
+                chat_key = get_today_chat_key(username)
+                user_chat = collection.find_one({"_id": chat_key})
+                if not user_chat:
+                    user_chat = {"_id": chat_key, "username": username, "chat_history": []}
+                    collection.insert_one(user_chat)
+
+                # Add the image request and Gemini response to the chat history
+                chat_entry = {
+                    "user": image.filename,  # Store the file name as the user message
+                    "bot": paragraph,       # Store the Gemini response as the bot message
+                    "code": [],              # No code blocks for image requests
+                }
+                user_chat["chat_history"].append(chat_entry)
+                collection.update_one({"_id": chat_key}, {"$set": {"chat_history": user_chat["chat_history"]}})
+
+                return jsonify({
+                    "success": True,
+                    "message": "Image analyzed successfully",
+                    "paragraph": paragraph,
+                })
+            else:
+                return jsonify({"success": False, "error": "Failed to generate paragraph"}), 500
+        else:
+            return jsonify({"success": False, "error": "Failed to analyze image"}), 500
+    else:
+        return jsonify({"success": False, "error": "Invalid file type"}), 400
+    
+        
 def get_today_chat_key(username):
     """Generate today's date key for the user's chat document."""
     today_date = datetime.now().strftime("%Y-%m-%d")
