@@ -8,7 +8,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
 </head>
 <body>
-    <div class="chat-container glass-effect">
+    <!-- Toggle Button -->
+    <button id="toggle-history" class="toggle-button" title="Side Panel">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="chat-container glass-effect" id="chat-container">
         <div class="chat-header">
             <h1>WELCOME TO MOHAN'S MINI CHATBOT</h1>
             <p class="subheading">Feel free to ask anything</p>
@@ -22,14 +27,8 @@
             <button onclick="document.getElementById('image-upload').click()"><i class="fas fa-image"></i></button>
         </div>
     </div>
-    <div id="logout-modal" class="modal">
-        <div class="modal-content">
-            <p>Are you sure you want to logout?</p>
-            <button onclick="logout()">OK</button>
-            <button onclick="closeModal()">Cancel</button>
-        </div>
-    </div>
-    <div class="history-store glass-effect">
+
+    <div class="history-store glass-effect" id="history-store">
         <div class="history-header">
             <h1>HISTORY</h1>
             <p class="subheading">Previous chat history</p>
@@ -41,7 +40,9 @@
             <button class="logout-btn glass-effect" onclick="confirmLogout()">Logout</button>
         </div>
     </div>
+
     <img src="{{ url_for('static', filename='images/icon.png') }}" class="site-icon">
+
     <script src="/static/script.js"></script>
 </body>
 </html>

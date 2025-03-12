@@ -188,6 +188,48 @@ body {
     50% { transform: scale(1.2); opacity: 0.7; }
     100% { transform: scale(1); opacity: 1; }
 }
+
+/* Add these styles to your existing CSS */
+/* Add these styles to your existing CSS */
+
+/* Toggle Button */
+.toggle-button {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 1000;
+    transition: background-color 0.3s;
+}
+
+.toggle-button:hover {
+    background-color: #0056b3;
+}
+
+/* Add these styles to your existing CSS */
+
+/* Chat Container */
+#chat-container {
+    transition: width 0.3s, margin-right 0.3s;
+    width: calc(100% - 300px); /* Adjust based on history box width */
+     /* Space for history box */
+}
+
+
+/* When history is hidden */
+.history-hidden #history-store {
+    display: none; /* Hide history box */
+}
+
+.history-hidden #chat-container {
+    width: 100%; /* Expand chat box to full width */
+    margin-right: 0; /* Remove margin for history box */
+}
 /* Code box */
 .code-box {
     background: #181818;

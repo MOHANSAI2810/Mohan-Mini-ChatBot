@@ -199,6 +199,25 @@ function sendMessage() {
             });
     }
 }
+// Add this to script.js
+const toggleHistoryButton = document.getElementById("toggle-history");
+const historyStore = document.getElementById("history-store");
+const chatContainer = document.getElementById("chat-container");
+
+let isHistoryVisible = true; // Track if history is visible
+
+// Toggle history visibility
+toggleHistoryButton.addEventListener("click", function () {
+    isHistoryVisible = !isHistoryVisible;
+
+    if (isHistoryVisible) {
+        // Show history box
+        document.body.classList.remove("history-hidden");
+    } else {
+        // Hide history box
+        document.body.classList.add("history-hidden");
+    }
+});
 // Handle Enter key press
 document.getElementById("user-input").addEventListener("keydown", function (e) {
     if (e.key === "Enter" && !e.shiftKey) {
