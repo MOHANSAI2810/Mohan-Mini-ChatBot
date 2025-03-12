@@ -311,22 +311,21 @@ window.onload = function() {
         })
         .catch(error => console.error('Error fetching history:', error));
 };
-// Function to load chat history into the chat box
 function loadChatHistory(chatId) {
     fetch(`/load_chat_history/${chatId}`)
-        .then(response => response.json())
-        .then(data => {
+        .then((response) => response.json())
+        .then((data) => {
             if (data.chat_history) {
                 // Clear the current chat box
                 const chatBox = document.getElementById("chat-box");
                 chatBox.innerHTML = '';
-                
+
                 // Append the chat history messages
-                data.chat_history.forEach(entry => {
-                    appendMessage(entry.user, "user-message");
-                    appendMessage(entry.bot, "bot-message", entry.code);
+                data.chat_history.forEach((entry) => {
+                    appendMessage(entry.user, "user-message", [], true); // isHistory = true
+                    appendMessage(entry.bot, "bot-message", entry.code, true); // isHistory = true
                 });
             }
         })
-        .catch(error => console.error('Error loading chat history:', error));
+        .catch((error) => console.error("Error loading chat history:", error));
 }
