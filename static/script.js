@@ -232,6 +232,66 @@ document.getElementById("user-input").addEventListener("keydown", function (e) {
     }
 });
 
+let isListening = false; // Track if speech recognition is active
+let recognition = null;  // Speech recognition object
+
+// Initialize speech recognition
+function initializeSpeechRecognition() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        alert("Your browser does not support speech recognition. Please use Chrome or Edge.");
+        return;
+    }
+
+    recognition = new SpeechRecognition();
+    recognition.continuous = false; // Stop after one sentence
+    recognition.interimResults = false; // Only final results
+    recognition.lang = "en-US"; // Set language
+
+    recognition.onresult = function (event) {
+        const transcript = event.results[0][0].transcript;
+        const userInput = document.getElementById("user-input");
+        userInput.value = transcript; // Display the recognized text in the input box
+    };
+
+    recognition.onerror = function (event) {
+        console.error("Speech recognition error:", event.error);
+        alert("Speech recognition error: " + event.error);
+    };
+
+    recognition.onend = function () {
+        isListening = false;
+        updateMicButton(); // Update the mic button state
+    };
+}
+
+// Toggle speech recognition
+function toggleSpeechRecognition() {
+    if (!recognition) {
+        initializeSpeechRecognition();
+    }
+
+    if (isListening) {
+        recognition.stop(); // Stop speech recognition
+    } else {
+        recognition.start(); // Start speech recognition
+    }
+    isListening = !isListening;
+    updateMicButton(); // Update the mic button state
+}
+
+// Update the mic button appearance
+function updateMicButton() {
+    const micButton = document.getElementById("mic-button");
+    if (isListening) {
+        micButton.classList.add("active"); // Add a visual indicator (e.g., red mic)
+    } else {
+        micButton.classList.remove("active");
+    }
+}
+
+// Add this to your existing script.js
+
 window.onload = function() {
     fetch('/get_history')
         .then(response => response.json())

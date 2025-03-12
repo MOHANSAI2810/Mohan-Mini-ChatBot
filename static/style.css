@@ -154,11 +154,28 @@ body {
     text-align: left;
     box-shadow: 0px 3px 8px rgba(75, 121, 161, 0.3);
 }
+/* Add these styles to your existing CSS */
+#mic-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    margin-left: 5px;
+}
 
+#mic-button.active {
+    background-color: red; /* Change color when active */
+}
+
+#mic-button:hover {
+    background-color: #0056b3;
+}
 /* Code box */
 .code-box {
     background: #181818;
-    color: #33ff66;
+    color: #ffffff;
     font-family: "Courier New", monospace;
     padding: 12px;
     border-radius: 12px;
