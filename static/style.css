@@ -1,54 +1,130 @@
-/* General styles */
+/* General Styles */
+
+/* Change selection color for all elements */
+::selection {
+    background: #ff3b3b; /* Red background */
+    color: white; /* White text when selected */
+}
+
+/* For Firefox */
+::-moz-selection {
+    background: #ff3b3b;
+    color: white;
+}
+
+/* Ensure label text inherits the selection color */
+label::selection {
+    background: #ff3b3b;
+    color: white;
+}
+#email::selection {
+    background: #ff3b3b; /* Red background */
+    color: white; /* White text when selected */
+}
+
+#signup{
+    text-decoration-color: #12a514;
+}
+
+.form-container {
+    position: absolute;
+    top: 50%;
+    left: 15%; /* Adjust this value as needed */
+    transform: translate(-50%, -50%);
+    padding: 30px;
+    border-radius: 15px;
+    width: 350px;
+    text-align: center;
+    background: rgba(241, 3, 3, 0.2); /* Optional: Adds transparency effect */
+}
+
+
+/* To ensure the outer container has a glowing effect */
+
+
+/* General Styles */
 body {
-    font-family: 'Poppins', sans-serif;
-    margin: 0;
-    padding: 0;
-    height: 100vh;
-    background: linear-gradient(135deg, #121212, #2b2b2b);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    font-family: Arial, sans-serif;
     background-image: url('image.png');
     background-repeat: no-repeat;
     background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
 }
-.bold {
+
+h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #fff; /* White text for header */
+    background: linear-gradient(135deg, #12a514, #c4d80e); /* Gradient text background */
+    -webkit-background-clip: text;
+    color: transparent;
     font-weight: bold;
 }
 
-/* Chat container */
-.chat-container {
+input {
+    width: 95%;
+    padding: 10px;
+    margin: 10px 0;
+    border:rgb(228, 12, 52);
+    border-radius: 5px;
+    background: #2065b3;
+    color: rgb(251, 251, 251);
+    box-shadow: 0px 5px 10px rgb(123, 138, 10);
+    
+}
+input::placeholder {
+    color: rgb(200, 253, 7); /* Lighter white */
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+}
+button {
     width: 100%;
-    max-width: 1000px;
-    height: 93vh;
-    background: rgba(255, 255, 255, 0.07);
-    border-radius: 15px;
-    backdrop-filter: blur(15px);
-    border: 2px solid rgba(222, 255, 5, 0.979);
-    box-shadow: 0px 10px 25px rgba(255, 105, 30, 0.3);
-    display: flex;
-    flex-direction: column;
-    position: absolute;
-    top: 50%;
-    right: 0%; /* Adjust this value as needed */
-    transform: translate(0%,-50%);
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background: linear-gradient(45deg, #ff416c, #ff4b2b);
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
-.history-store{
-    width: 29%;
-    max-width: 1000px;
-    height: 93vh;
-    background: rgba(255, 255, 255, 0.07);
-    border-radius: 15px;
-    backdrop-filter: blur(15px);
-    border: 2px solid rgba(222, 255, 5, 0.979);
-    box-shadow: 0px 10px 25px rgba(255, 105, 30, 0.3);
-    display: flex;
-    flex-direction: column;
-    position: absolute;
-    top: 50%;
-    left: 1%; /* Adjust this value as needed */
-    transform: translate(-3%,-50%);
+
+button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(255, 75, 43, 0.8);
 }
+
+p, a {
+    color: #bbb;
+}
+
+a:hover {
+    color: #ff4b2b;
+}
+.site-icon {
+    width: 100px;  /* Adjust size as needed */
+    height: 100px;
+    border-radius: 100%;  /* Makes it circular */
+    position: absolute;
+    top: 1%;
+    right: 1%;
+    object-fit: cover; /* Ensures the image fits well */
+}
+
+/* Flash Messages */
+.flash-messages {
+    background: rgba(255, 75, 43, 0.2);
+    padding: 10px;
+    border-radius: 5px;
+    color: #01fc09;
+    margin-bottom: 15px;
+}
+
+/* Glass Effect */
 .glass-effect {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
@@ -56,373 +132,4 @@ body {
     border-radius: 10px;
     padding: 20px;
     box-shadow: 0px 5px 15px rgba(255, 105, 30, 0.3);
-}
-
-/* Chat header */
-.chat-header {
-    text-align: center;
-    padding: 5px;
-    font-size: 10px;
-    font-weight: bold;
-    background: linear-gradient(to right, #ff4500, #e91e63);
-    color: white;
-    border-top-left-radius: 15px;
-    border-top-right-radius: 15px;
-    width: 90%;
-}
-.history-button {
-    display: block;
-    background-color: #FF4500;
-    width: 450px;
-    color: white;
-    padding: 10px;
-    margin: 5px;
-    border-radius: 8px;
-    cursor: pointer;
-    text-align: center;
-    font-weight: bold;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.history-button:hover {
-    background-color: #e91e63;
-}
-
-.history-header{
-    text-align: center;
-    padding: 5px;
-    font-size: 10px;
-    font-weight: bold;
-    background: linear-gradient(to right, #ff4500, #e91e63);
-    color: white;
-    border-top-left-radius: 15px;
-    border-top-right-radius: 15px;
-    width: 100%;
-    
-}
-.history-message {
-    background: rgba(255, 255, 255, 0.2);
-    padding: 10px;
-    margin: 5px;
-    border-radius: 8px;
-    font-size: 14px;
-    color: white;
-}
-
-/* Subheading below the title */
-.subheading {
-    font-size: 18px;
-    font-weight: normal;
-    margin-top: 5px;
-    color: rgba(255, 255, 255, 0.8); /* Slightly lighter text */
-}
-
-/* Chat box */
-.chat-box {
-    flex: 1;
-    padding: 12px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-}
-/* Message bubbles */
-.message {
-    padding: 12px 18px;
-    border-radius: 18px;
-    margin: 8px;
-    max-width: 75%;
-    word-wrap: break-word;
-    font-size: 16px;
-}
-
-/* User messages */
-.user-message {
-    
-    color: white;
-    align-self: flex-end;
-    text-align: right;
-    background: linear-gradient(to right, #00f260, #0575e6);
-    box-shadow: 0px 0px 8px #00f260;
-}
-
-
-/* Bot messages */
-.bot-message {
-    background: linear-gradient(to right, #2c3e50, #4b79a1);
-    color: white;
-    align-self: flex-start;
-    text-align: left;
-    box-shadow: 0px 3px 8px rgba(75, 121, 161, 0.3);
-}
-/* Add these styles to your existing CSS */
-#mic-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 10px;
-    border-radius: 50%;
-    cursor: pointer;
-    margin-left: 5px;
-}
-
-#mic-button.active {
-    background-color: red; /* Change color when active */
-}
-
-#mic-button:hover {
-    background-color: #0056b3;
-}
-
-
-
-/* Add these styles to your existing CSS */
-.loading-box {
-    width: 15px;
-    height: 15px;
-    background-color: #ffffff;
-    
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.2); opacity: 0.7; }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-/* Add these styles to your existing CSS */
-/* Add these styles to your existing CSS */
-
-/* Toggle Button */
-.toggle-button {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 10px;
-    border-radius: 50%;
-    cursor: pointer;
-    z-index: 1000;
-    transition: background-color 0.3s;
-}
-
-.toggle-button:hover {
-    background-color: #0056b3;
-}
-
-/* Add these styles to your existing CSS */
-
-/* Chat Container */
-#chat-container {
-    transition: width 0.3s, margin-right 0.3s;
-    width: calc(100% - 300px); /* Adjust based on history box width */
-     /* Space for history box */
-}
-
-
-/* When history is hidden */
-.history-hidden #history-store {
-    display: none; /* Hide history box */
-}
-
-.history-hidden #chat-container {
-    width: 100%; /* Expand chat box to full width */
-    margin-right: 0; /* Remove margin for history box */
-}
-/* Code box */
-.code-box {
-    background: #181818;
-    color: #ffffff;
-    font-family: "Courier New", monospace;
-    padding: 12px;
-    border-radius: 12px;
-    margin: 10px;
-    max-width: 90%;
-    position: relative;
-    overflow-x: auto;
-    white-space: pre-wrap;
-    box-shadow: inset 0px 0px 10px rgba(51, 255, 102, 0.2);
-}
-
-/* Copy button */
-.copy-btn {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: rgba(255, 255, 255, 0.15);
-    border: none;
-    color: white;
-    cursor: pointer;
-    padding: 6px 8px;
-    border-radius: 5px;
-    font-size: 12px;
-    transition: background 0.3s;
-}
-
-.copy-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-/* Input container */
-.input-container {
-    display: flex;
-    align-items: center;
-    padding: 12px;
-    background: #000000;
-    border-bottom-left-radius: 15px;
-    border-bottom-right-radius: 15px;
-    box-shadow: 0px -3px 8px rgba(0, 0, 0, 0.2);
-}
-
-/* Input field */
-.input-container textarea {
-    flex: 1;
-    padding: 12px;
-    border-radius: 20px;
-    border: none;
-    outline: none;
-    font-size: 16px;
-    background: rgba(255, 255, 255, 0.15);
-    color: white;
-    height: 42px;
-    resize: none;
-    transition: background 0.3s, border 0.3s;
-}
-
-.input-container textarea:focus {
-    background: rgba(255, 255, 255, 0.25);
-    border: 2px solid #ff512f;
-}
-
-/* Send button */
-.input-container button {
-    background: linear-gradient(to right, #ff416c, #ff4b2b);
-    border: none;
-    color: white;
-    border-radius: 20px;
-    margin-left: 10px;
-    cursor: pointer;
-    padding: 12px 18px;
-    font-size: 16px;
-    transition: transform 0.3s, background 0.3s;
-}
-
-.input-container button:hover {
-    background: linear-gradient(to right, #ff4b2b, #ff512f);
-    transform: scale(1.05);
-}
-
-
-.typing-indicator {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    margin: 0 2px;
-    background-color: white;
-    border-radius: 50%;
-    animation: typingAnimation 1.5s infinite;
-}
-
-/* Logout button */
-
-/* Modal styling */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    justify-content: center;
-    align-items: center;
-}
-
-.modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 5px;
-    text-align: center;
-}
-
-.modal-content button {
-    margin: 10px;
-    padding: 8px 15px;
-    border: none;
-    cursor: pointer;
-}
-
-.modal-content button:first-child {
-    background-color: #ff4d4d;
-    color: white;
-}
-
-.modal-content button:last-child {
-    background-color: #ccc;
-}
-.user-box {
-    position: absolute;
-    bottom: 10px; /* Adjust as needed */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%; /* Adjust width */
-    
-    padding: 15px 20px;
-    border-radius: 15px;
-    backdrop-filter: blur(15px);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 18px;
-    font-weight: bold;
-    color: white;
-    text-transform: capitalize;
-}
-
-/* Styling for the username */
-#username {
-    font-size: 25px;
-    font-weight: bold;
-    color: #ffffff;
-}
-.site-icon {
-    width: 100px;  /* Adjust size as needed */
-    height: 100px;
-    border-radius: 100%;  /* Makes it circular */
-    position: absolute;
-    top: 4%;
-    right: 0.5%;
-    object-fit: cover; /* Ensures the image fits well */
-}
-.user_icon{
-    width: 35px;
-    height: 35px;
-    border-radius: 100%;
-}
-/* Styling for the logout button */
-.logout-btn {
-    background: linear-gradient(45deg, #ff4b2b, #ff416c);
-    
-    border: none;
-    padding: 10px 15px;
-    cursor: pointer;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: bold;
-    transition: 0.3s;
-}
-
-.logout-btn:hover {
-    background: linear-gradient(45deg, #ff2e00, #ff005e);
-    transform: scale(1.05);
-}
-
-.user-box .logout-btn {
-    background: red;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
-    border-radius: 5px;
 }

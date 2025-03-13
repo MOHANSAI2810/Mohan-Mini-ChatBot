@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='chatbot_style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
+</head>
+<div class="body1">
+    <!-- Toggle Button -->
+    <button id="toggle-history" class="toggle-button" title="Side Panel">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="chat-container glass-effect" id="chat-container">
+        <div class="chat-header">
+            <h1>WELCOME TO MOHAN'S MINI CHATBOT</h1>
+            <p class="subheading">Feel free to ask anything</p>
+        </div>
+        <div class="chat-box" id="chat-box"></div>
+        <div class="input-container">
+            <textarea id="user-input" placeholder="Type a message..."></textarea>
+            <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+            <button id="mic-button" onclick="toggleSpeechRecognition()"><i class="fas fa-microphone"></i></button>
+            <input type="file" id="image-upload" accept=".png,.jpg,.jpeg" style="display: none;">
+            <button onclick="document.getElementById('image-upload').click()"><i class="fas fa-image"></i></button>
+        </div>
+    </div>
+
+    <div class="history-store glass-effect" id="history-store">
+        <div class="history-header">
+            <h1>HISTORY</h1>
+            <p class="subheading">Previous chat history</p>
+        </div>
+        <div id="history-box"></div>
+        <div class="user-box glass-effect">
+            <img src="{{ url_for('static', filename='images/user_icon.png') }}" class="user_icon">
+            <span id="username">{{ username }}</span>
+            <button class="logout-btn glass-effect" onclick="window.location.href='{{ url_for('logout') }}'">Logout</button>
+        </div>
+    </div>
+
+    <img src="{{ url_for('static', filename='images/icon.png') }}" class="site-icon">
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</div>
+</html>
