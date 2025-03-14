@@ -25,7 +25,8 @@ genai.configure(api_key="AIzaSyBwWydwEAt66jKarUSfpAxSnXkAM0KJmtg")
 model = genai.GenerativeModel("gemini-1.5-flash")
 
 # Connect to MongoDB
-client = MongoClient("mongodb://localhost:27017/")
+mongo_url="mongodb+srv://sai123:root@cluster0.kzso7.mongodb.net/"
+client = MongoClient(mongo_url)
 db = client["chatbot_db"]
 collection = db["chat_history"]
 
