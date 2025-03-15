@@ -16,6 +16,104 @@ body {
     font-weight: bold;
 }
 
+/* Style for the action buttons (copy and sound) */
+.action-buttons {
+    display: none;
+    position: absolute;
+    bottom: -30px; /* Position buttons below the response */
+    left: 0; /* Align buttons to the left */
+    gap: 5px;
+}
+
+/* Show buttons on hover */
+.bot-message:hover .action-buttons {
+    display: flex;
+}
+
+/* Button styling */
+.action-buttons button {
+    background-color: transparent;
+    color: #ffffff; /* Blue icon color */
+    border: none;
+    border-radius: 50%; /* Make buttons circular */
+    padding: 10px; /* Increased padding for larger buttons */
+    cursor: pointer;
+    font-size: 16px; /* Increased font size for larger icons */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+}
+
+.action-buttons button:hover {
+    background-color: rgba(0, 123, 255, 0.1); /* Light blue background on hover */
+}
+
+/* Ensure the bot message container is positioned relatively */
+.bot-message {
+    position: relative;
+    margin-bottom: 30px; /* Add margin to accommodate buttons below */
+}
+
+
+/* Style for message icons */
+.message-icon {
+    width: 40px; /* Adjust size as needed */
+    height: 40px;
+    border-radius: 50%; /* Make icons circular */
+    object-fit: cover; /* Ensure the image fits well */
+}
+
+/* Bot message container */
+.bot-message-container {
+    display: flex;
+    align-items: flex-start; /* Align icon and message at the top */
+    margin-bottom: 30px; /* Space for action buttons */
+}
+
+/* User message container */
+.user-message-container {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end; /* Align user messages to the right */
+    margin-bottom: 10px; /* Space between messages */
+}
+
+/* Bot message box */
+.bot-message {
+    background-color: #f1f1f1; /* Light gray background for bot messages */
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 70%; /* Limit message width */
+    margin-left: 10px; /* Space between icon and message */
+}
+
+/* User message box */
+.user-message {
+    background-color: #007bff; /* Blue background for user messages */
+    color: white; /* White text for user messages */
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 70%; /* Limit message width */
+    margin-right: 10px; /* Space between icon and message */
+}
+
+/* Style for the disclaimer text */
+.disclaimer {
+    text-align: center; /* Center the text */
+    font-size: 14px; /* Smaller font size */
+    color: #ffffff; /* Gray color for the text */
+    margin-top: 5px; /* Space above the disclaimer */
+}
+
+.disclaimer a {
+    color: #ffffff; /* Blue color for the link */
+    text-decoration: none; /* Remove underline */
+}
+
+.disclaimer a:hover {
+    text-decoration: underline; /* Underline on hover */
+}
 /* Chat container */
 .chat-container {
     width: 100%;
@@ -216,7 +314,7 @@ body {
 /* Chat Container */
 #chat-container {
     transition: width 0.3s, margin-right 0.3s;
-    width: calc(100% - 300px); /* Adjust based on history box width */
+    width: calc(100% - 330px); /* Adjust based on history box width */
      /* Space for history box */
 }
 
@@ -273,7 +371,6 @@ body {
     border-bottom-left-radius: 15px;
     border-bottom-right-radius: 15px;
     box-shadow: 0px -3px 8px rgba(0, 0, 0, 0.2);
-    bottom :0px;
 }
 
 /* Input field */

@@ -2,9 +2,29 @@ let isResponsePending = false; // Track if a response is being displayed
 
 function appendMessage(content, sender, codeBlocks = [], isHistory = false) {
     const chatBox = document.getElementById("chat-box");
+
+    // Create container for bot or user message
+    const messageContainer = document.createElement("div");
+    messageContainer.classList.add(sender === "bot-message" ? "bot-message-container" : "user-message-container");
+    chatBox.appendChild(messageContainer);
+
+    // Add icon for bot or user
+    const icon = document.createElement("img");
+    icon.classList.add("message-icon");
+    if (sender === "bot-message") {
+        icon.src = botIconPath; // Bot icon from HTML
+        messageContainer.appendChild(icon); // Add icon before the message
+    }
+
+    // Create message box
     const messageDiv = document.createElement("div");
     messageDiv.classList.add("message", sender);
-    chatBox.appendChild(messageDiv);
+    messageContainer.appendChild(messageDiv);
+
+    if (sender === "user-message") {
+        icon.src = userIconPath; // User icon from HTML
+        messageContainer.appendChild(icon); // Add icon after the message
+    }
 
     let messageParts = content.split("[CODE_BLOCK]"); // Custom separator
 
@@ -103,6 +123,32 @@ function appendMessage(content, sender, codeBlocks = [], isHistory = false) {
                 setTimeout(() => (copyButton.innerText = "Copy"), 1500);
             }).catch(err => console.error("Copy failed:", err));
         };
+    }
+
+    // Add copy and sound buttons for bot responses
+    if (sender === "bot-message") {
+        const actionButtons = document.createElement("div");
+        actionButtons.classList.add("action-buttons");
+
+        const copyButton = document.createElement("button");
+        copyButton.innerHTML = '<i class="fas fa-copy"></i>'; // Copy icon
+        copyButton.onclick = () => {
+            navigator.clipboard.writeText(content).then(() => {
+                copyButton.innerHTML = '<i class="fas fa-check"></i>'; // Checkmark icon
+                setTimeout(() => (copyButton.innerHTML = '<i class="fas fa-copy"></i>'), 1500);
+            }).catch(err => console.error("Copy failed:", err));
+        };
+
+        const soundButton = document.createElement("button");
+        soundButton.innerHTML = '<i class="fas fa-volume-up"></i>'; // Sound icon
+        soundButton.onclick = () => {
+            const utterance = new SpeechSynthesisUtterance(content);
+            window.speechSynthesis.speak(utterance);
+        };
+
+        actionButtons.appendChild(copyButton);
+        actionButtons.appendChild(soundButton);
+        messageDiv.appendChild(actionButtons);
     }
 
     typeText(0);

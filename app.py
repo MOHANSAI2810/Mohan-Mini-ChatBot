@@ -19,13 +19,14 @@ app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY") or secrets.token_hex(32)
 
 # Configure Gemini API
-genai.configure(api_key="AIzaSyBwWydwEAt66jKarUSfpAxSnXkAM0KJmtg")
+api_key=os.getenv("api_key")
+genai.configure(api_key=api_key)
 
 # Define Gemini model
 model = genai.GenerativeModel("gemini-1.5-flash")
 
 # Connect to MongoDB
-mongo_url="mongodb+srv://sai123:root@cluster0.kzso7.mongodb.net/"
+mongo_url=os.getenv("mongo_url")
 client = MongoClient(mongo_url)
 db = client["chatbot_db"]
 collection = db["chat_history"]
@@ -61,8 +62,8 @@ def extract_code(response_text):
 
 
 # Clarifai API credentials
-CLARIFAI_API_KEY = "8da60f31881f4f0eb4696fff7c67dda9"
-CLARIFAI_MODEL_URL = "https://api.clarifai.com/v2/models/general-image-recognition/versions/aa7f35c01e0642fda5cf400f543e7c40/outputs"
+CLARIFAI_API_KEY =os.getenv("CLARIFAI_API_KEY")
+CLARIFAI_MODEL_URL = os.getenv("CLARIFAI_MODEL_URL")
 
 def analyze_image_with_clarifai(image_path):
     """Send the image to Clarifai API and return the analysis results."""
