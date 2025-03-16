@@ -13,6 +13,9 @@ import secrets
 import mysql.connector
 import requests
 import base64
+import PyPDF2
+from docx import Document
+from pptx import Presentation
 load_dotenv()
 
 app = Flask(__name__)
@@ -60,7 +63,120 @@ def extract_code(response_text):
 
     return text_without_code, code_blocks
 
+@app.route("/upload-file", methods=["POST"])
+def upload_file():
+    if "file" not in request.files:
+        return jsonify({"success": False, "error": "No file uploaded"}), 400
 
+    file = request.files["file"]
+    if file.filename == "":
+        return jsonify({"success": False, "error": "No selected file"}), 400
+
+    # Validate file type
+    allowed_extensions = {"pdf", "docx", "pptx"}
+    file_extension = file.filename.split(".")[-1].lower()
+    if file_extension not in allowed_extensions:
+        return jsonify({"success": False, "error": "Invalid file type"}), 400
+
+    # Save the file temporarily
+    file_path = os.path.join("uploads", file.filename)
+    file.save(file_path)
+
+    # Extract text based on file type
+    if file_extension == "pdf":
+        text = extract_text_from_pdf(file_path)
+    elif file_extension == "docx":
+        text = extract_text_from_docx(file_path)
+    elif file_extension == "pptx":
+        text = extract_text_from_pptx(file_path)
+    else:
+        return jsonify({"success": False, "error": "Unsupported file type"}), 400
+
+    # Clean up: Delete the temporary file
+    os.remove(file_path)
+
+    if not text:
+        return jsonify({"success": False, "error": "Failed to extract text"}), 500
+
+    # Summarize the text using Gemini API
+    summary = summarize_text_with_gemini(text)
+    if not summary:
+        return jsonify({"success": False, "error": "Failed to summarize text"}), 500
+
+    # Store the file name and summary in MongoDB
+    username = session.get("username")
+    if not username:
+        return jsonify({"success": False, "error": "User not logged in"}), 401
+
+    chat_key = get_today_chat_key(username)
+    user_chat = collection.find_one({"_id": chat_key})
+    if not user_chat:
+        user_chat = {"_id": chat_key, "username": username, "chat_history": []}
+        collection.insert_one(user_chat)
+
+    # Add the file request and summary to the chat history
+    chat_entry = {
+        "user": file.filename,  # Store the file name as the user message
+        "bot": summary,         # Store the summary as the bot message
+        "code": [],             # No code blocks for file requests
+    }
+    user_chat["chat_history"].append(chat_entry)
+    collection.update_one({"_id": chat_key}, {"$set": {"chat_history": user_chat["chat_history"]}})
+
+    return jsonify({
+        "success": True,
+        "message": "File processed successfully",
+        "summary": summary,
+    })
+def extract_text_from_pdf(file_path):
+    """Extract text from a PDF file."""
+    try:
+        with open(file_path, "rb") as file:
+            reader = PyPDF2.PdfReader(file)
+            text = ""
+            for page in reader.pages:
+                text += page.extract_text()
+            return text
+    except Exception as e:
+        print(f"Error extracting text from PDF: {e}")
+        return None
+
+def extract_text_from_docx(file_path):
+    """Extract text from a DOCX file."""
+    try:
+        doc = Document(file_path)
+        text = ""
+        for paragraph in doc.paragraphs:
+            text += paragraph.text + "\n"
+        return text
+    except Exception as e:
+        print(f"Error extracting text from DOCX: {e}")
+        return None
+
+def extract_text_from_pptx(file_path):
+    """Extract text from a PPTX file."""
+    try:
+        ppt = Presentation(file_path)
+        text = ""
+        for slide in ppt.slides:
+            for shape in slide.shapes:
+                if hasattr(shape, "text"):
+                    text += shape.text + "\n"
+        return text
+    except Exception as e:
+        print(f"Error extracting text from PPTX: {e}")
+        return None
+    
+def summarize_text_with_gemini(text):
+    """Summarize text using the Gemini API."""
+    try:
+        prompt = f"Summarize the following text in 5 key points:\n{text}"
+        response = model.generate_content(prompt)
+        return response.text.strip()
+    except Exception as e:
+        print(f"Error summarizing text with Gemini: {e}")
+        return None
+    
 # Clarifai API credentials
 CLARIFAI_API_KEY =os.getenv("CLARIFAI_API_KEY")
 CLARIFAI_MODEL_URL = os.getenv("CLARIFAI_MODEL_URL")

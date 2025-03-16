@@ -21,34 +21,39 @@
                 <p class="subheading">Feel free to ask anything</p>
             </div>
             <div class="chat-box" id="chat-box"></div>
-<div class="input-container">
+            <div class="input-container">
     <textarea id="user-input" placeholder="Type a message..."></textarea>
     <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
     <button id="mic-button" onclick="toggleSpeechRecognition()"><i class="fas fa-microphone"></i></button>
     <input type="file" id="image-upload" accept=".png,.jpg,.jpeg" style="display: none;">
     <button onclick="document.getElementById('image-upload').click()"><i class="fas fa-image"></i></button>
+    <input type="file" id="file-upload" accept=".pdf,.docx,.pptx" style="display: none;">
+    <button onclick="document.getElementById('file-upload').click()"><i class="fas fa-file"></i></button>
+</div>
 </div>
 
-<!-- Add the disclaimer below the input-container -->
-<div class="disclaimer">
-    Mohan's Mini Chatbot can make mistakes. Check <a href="{{ url_for('static', filename='terms.txt') }}" target="_blank">Terms and Conditions</a>.
-</div>
-        </div>
+<div class="history-store glass-effect" id="history-store">
+    <div class="history-header">
+        <h1>HISTORY</h1>
+        <p class="subheading">Previous chat history</p>
+    </div>
+    <div id="history-box"></div>
 
-        <div class="history-store glass-effect" id="history-store">
-            <div class="history-header">
-                <h1>HISTORY</h1>
-                <p class="subheading">Previous chat history</p>
-            </div>
-            <div id="history-box"></div>
-            <div class="user-box glass-effect">
-                <img src="{{ url_for('static', filename='images/user_icon.png') }}" class="user_icon">
-                <span id="username">{{ username }}</span>
-                <button class="logout-btn glass-effect" onclick="window.location.href='{{ url_for('logout') }}'">Logout</button>
-            </div>
-        </div>
+    <!-- User box with username and logout button -->
+    <div class="user-box glass-effect">
+        <img src="{{ url_for('static', filename='images/user_icon.png') }}" class="user_icon">
+        <span id="username">{{ username }}</span>
+        <button class="logout-btn glass-effect" onclick="window.location.href='{{ url_for('logout') }}'">Logout</button>
+    </div>
+
+    <!-- Add the disclaimer below the user-box -->
+    <div class="disclaimer">
+        Mohan's Mini Chatbot can make mistakes. Check <a href="{{ url_for('static', filename='terms.txt') }}" target="_blank">Terms and Conditions</a>.
+    </div>
+</div>
 
         <img src="{{ url_for('static', filename='images/icon.png') }}" class="site-icon">
+
 
         <!-- Pass image paths to JavaScript -->
         <script>
@@ -56,6 +61,7 @@
             const userIconPath = "{{ url_for('static', filename='images/user_icon.png') }}";
         </script>
         <script src="{{ url_for('static', filename='script.js') }}"></script>
+
     </div>
 </body>
 </html>
