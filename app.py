@@ -170,7 +170,7 @@ def extract_text_from_pptx(file_path):
 def summarize_text_with_gemini(text):
     """Summarize text using the Gemini API."""
     try:
-        prompt = f"Summarize the following text in 5 key points:\n{text}"
+        prompt = f"Summarize the following text and provide the key points in them:\n{text}"
         response = model.generate_content(prompt)
         return response.text.strip()
     except Exception as e:

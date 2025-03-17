@@ -179,6 +179,10 @@ function updateSendButton() {
     }
 }
 
+
+let selectedFile = null; // Store the selected file
+
+
 function sendMessage() {
     if (isResponsePending) return; // Prevent new requests if a response is pending
 
@@ -190,18 +194,21 @@ function sendMessage() {
     // Check if the message is an image name (e.g., ends with .png, .jpg, etc.)
     const isImage = /\.(png|jpg|jpeg)$/i.test(message);
 
+    // Check if the message is a file name (e.g., ends with .pdf, .docx, etc.)
+    const isFile = /\.(pdf|docx|pptx)$/i.test(message);
+
+    // Display the file name as the user's message
+    appendMessage(message, "user-message");
+
+    // Display "Bot is thinking..." message
+    const botThinking = document.createElement("div");
+    botThinking.classList.add("message", "bot-message");
+    botThinking.innerHTML = "Bot is thinking...";
+    botThinking.id = "thinking-message";
+    document.getElementById("chat-box").appendChild(botThinking);
+
     if (isImage && selectedImageFile) {
-        // Display the file name as the user's message
-        appendMessage(message, "user-message");
-
-        // Display "Bot is thinking..." message
-        const botThinking = document.createElement("div");
-        botThinking.classList.add("message", "bot-message");
-        botThinking.innerHTML = "Bot is thinking...";
-        botThinking.id = "thinking-message";
-        document.getElementById("chat-box").appendChild(botThinking);
-
-        // Send the image to the server for processing
+        // Handle image upload
         const formData = new FormData();
         formData.append("image", selectedImageFile);
 
@@ -230,78 +237,8 @@ function sendMessage() {
         // Clear the input box and reset the selected image
         userInput.value = "";
         selectedImageFile = null;
-    } else {
-        // Proceed with normal text message handling
-        appendMessage(message, "user-message");
-        userInput.value = "";
-
-        const botThinking = document.createElement("div");
-        botThinking.classList.add("message", "bot-message");
-        botThinking.innerHTML = "Bot is thinking...";
-        botThinking.id = "thinking-message";
-        document.getElementById("chat-box").appendChild(botThinking);
-
-        fetch("/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message: message }),
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                document.getElementById("thinking-message").remove();
-                appendMessage(data.reply, "bot-message", data.code);
-            })
-            .catch((error) => {
-                document.getElementById("thinking-message").remove();
-                console.log(error);
-            });
-    }
-}
-
-let selectedFile = null; // Store the selected file
-
-// Handle file upload
-document.getElementById("file-upload").addEventListener("change", function (e) {
-    const file = e.target.files[0];
-    if (file) {
-        const allowedTypes = ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.openxmlformats-officedocument.presentationml.presentation"];
-        if (allowedTypes.includes(file.type)) {
-            // Display the file name in the input box
-            const userInput = document.getElementById("user-input");
-            userInput.value = file.name;
-
-            // Store the selected file
-            selectedFile = file;
-        } else {
-            alert("Only PDF, DOCX, and PPTX files are allowed.");
-        }
-    }
-});
-
-// Update sendMessage function to handle file uploads
-function sendMessage() {
-    if (isResponsePending) return; // Prevent new requests if a response is pending
-
-    const userInput = document.getElementById("user-input");
-    const message = userInput.value.trim();
-
-    if (message === "") return;
-
-    // Check if the message is a file name (e.g., ends with .pdf, .docx, etc.)
-    const isFile = /\.(pdf|docx|pptx)$/i.test(message);
-
-    if (isFile && selectedFile) {
-        // Display the file name as the user's message
-        appendMessage(message, "user-message");
-
-        // Display "Bot is thinking..." message
-        const botThinking = document.createElement("div");
-        botThinking.classList.add("message", "bot-message");
-        botThinking.innerHTML = "Bot is thinking...";
-        botThinking.id = "thinking-message";
-        document.getElementById("chat-box").appendChild(botThinking);
-
-        // Send the file to the server for processing
+    } else if (isFile && selectedFile) {
+        // Handle file upload
         const formData = new FormData();
         formData.append("file", selectedFile);
 
@@ -331,16 +268,7 @@ function sendMessage() {
         userInput.value = "";
         selectedFile = null;
     } else {
-        // Proceed with normal text message handling
-        appendMessage(message, "user-message");
-        userInput.value = "";
-
-        const botThinking = document.createElement("div");
-        botThinking.classList.add("message", "bot-message");
-        botThinking.innerHTML = "Bot is thinking...";
-        botThinking.id = "thinking-message";
-        document.getElementById("chat-box").appendChild(botThinking);
-
+        // Handle normal text message
         fetch("/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -355,9 +283,46 @@ function sendMessage() {
                 document.getElementById("thinking-message").remove();
                 console.log(error);
             });
+
+        // Clear the input box
+        userInput.value = "";
     }
 }
+// Handle file upload
+document.getElementById("file-upload").addEventListener("change", function (e) {
+    const file = e.target.files[0];
+    if (file) {
+        const allowedTypes = ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.openxmlformats-officedocument.presentationml.presentation"];
+        if (allowedTypes.includes(file.type)) {
+            // Display the file name in the input box
+            const userInput = document.getElementById("user-input");
+            userInput.value = file.name;
 
+            // Store the selected file
+            selectedFile = file;
+        } else {
+            alert("Only PDF, DOCX, and PPTX files are allowed.");
+        }
+    }
+});
+
+// Handle image upload
+document.getElementById("image-upload").addEventListener("change", function (e) {
+    const file = e.target.files[0];
+    if (file) {
+        const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
+        if (allowedTypes.includes(file.type)) {
+            // Display the image name in the input box
+            const userInput = document.getElementById("user-input");
+            userInput.value = file.name;
+
+            // Store the selected image file
+            selectedImageFile = file;
+        } else {
+            alert("Only PNG, JPG, and JPEG images are allowed.");
+        }
+    }
+});
 // Add this to script.js
 const toggleHistoryButton = document.getElementById("toggle-history");
 const historyStore = document.getElementById("history-store");
@@ -407,25 +372,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // Update the image upload handler
 let selectedImageFile = null; // Store the selected image file
-
-// Update the image upload handler
-document.getElementById("image-upload").addEventListener("change", function (e) {
-    const file = e.target.files[0];
-    if (file) {
-        const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
-        if (allowedTypes.includes(file.type)) {
-            // Display the image name in the input box
-            const userInput = document.getElementById("user-input");
-            userInput.value = file.name;
-
-            // Store the selected image file
-            selectedImageFile = file;
-        } else {
-            alert("Only PNG, JPG, and JPEG images are allowed.");
-        }
-    }
-});
-
 
 let isListening = false; // Track if speech recognition is active
 let recognition = null;  // Speech recognition object
