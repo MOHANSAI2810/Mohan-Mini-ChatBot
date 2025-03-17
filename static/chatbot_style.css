@@ -105,7 +105,8 @@ body {
     color: #ffffff; /* Gray color for the text */
     margin-top: 5px; /* Space above the disclaimer */
 position: absolute;
-bottom: 10px;
+bottom: 3px;
+right: 280px;
 }
 
 .disclaimer a {
@@ -463,7 +464,7 @@ bottom: 10px;
 }
 .user-box {
     position: absolute;
-    bottom: 35px; /* Adjust as needed */
+    bottom: 20px; /* Adjust as needed */
     left: 50%;
     transform: translateX(-50%);
     width: 90%; /* Adjust width */

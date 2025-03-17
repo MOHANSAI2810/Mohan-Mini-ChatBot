@@ -31,6 +31,9 @@
             <input type="file" id="file-upload" accept=".pdf,.docx,.pptx" style="display: none;">
             <button onclick="document.getElementById('file-upload').click()" title="files"><i class="fas fa-file"></i></button>
         </div>
+        <div class="disclaimer">
+            Mohan's Mini Chatbot can make mistakes. Check <a href="{{ url_for('static', filename='terms.txt') }}" target="_blank">Terms and Conditions</a>.
+        </div>
     </div>
 
     <!-- History Store -->
@@ -44,9 +47,6 @@
             <img src="{{ url_for('static', filename='images/user_icon.png') }}" class="user_icon">
             <span id="username">{{ username }}</span>
             <button class="logout-btn glass-effect" onclick="window.location.href='{{ url_for('logout') }}'">Logout</button>
-        </div>
-        <div class="disclaimer">
-            Mohan's Mini Chatbot can make mistakes. Check <a href="{{ url_for('static', filename='terms.txt') }}" target="_blank">Terms and Conditions</a>.
         </div>
     </div>
 </div>
