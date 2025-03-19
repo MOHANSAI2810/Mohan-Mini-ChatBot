@@ -431,27 +431,80 @@ function updateMicButton() {
     }
 }
 
-// Add this to your existing script.js
+let currentSearchQuery = ""; // Store the current search query
 
-window.onload = function() {
+// Function to search the entire chat history
+function searchChat() {
+    const searchQuery = document.getElementById("search-input").value.trim();
+    if (!searchQuery) {
+        return; // Exit if no search query is entered
+    }
+
+    currentSearchQuery = searchQuery; // Store the search query
+
+    // Fetch all chat history from the server
     fetch('/get_history')
         .then(response => response.json())
         .then(data => {
-            const historyBox = document.getElementById('history-box');
             if (data.history) {
-                data.history.forEach(chat => {
-                    const historyButton = document.createElement("button");
-                    historyButton.classList.add("history-button");
-                    historyButton.innerText = chat.date;  // Show the date of the chat
-                    historyButton.onclick = () => loadChatHistory(chat.chat_id); // On click, load history
+                let foundMatch = false;
 
-                    // Insert the new history button at the top
-                    historyBox.insertBefore(historyButton, historyBox.firstChild);
+                // Clear previous highlights in the history buttons
+                const historyButtons = document.querySelectorAll(".history-button");
+                historyButtons.forEach(button => button.classList.remove("highlight-button"));
+
+                // Search through all chat history
+                data.history.forEach(chat => {
+                    const chatId = chat.chat_id;
+                    fetch(`/load_chat_history/${chatId}`)
+                        .then(response => response.json())
+                        .then(chatData => {
+                            if (chatData.chat_history) {
+                                let hasMatch = false;
+
+                                // Check if the search term exists in this chat
+                                chatData.chat_history.forEach(entry => {
+                                    if (entry.user.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                        entry.bot.toLowerCase().includes(searchQuery.toLowerCase())) {
+                                        hasMatch = true;
+                                    }
+                                });
+
+                                // Highlight the history button if a match is found
+                                if (hasMatch) {
+                                    const historyButton = document.querySelector(`.history-button[data-chat-id="${chatId}"]`);
+                                    if (historyButton) {
+                                        historyButton.classList.add("highlight-button");
+                                        foundMatch = true;
+                                    }
+                                }
+                            }
+                        })
+                        .catch(error => console.error("Error loading chat history:", error));
                 });
+
+                
             }
         })
         .catch(error => console.error('Error fetching history:', error));
-};
+}
+
+// Function to highlight the searched word in the chat messages
+function highlightSearchQuery() {
+    const chatBox = document.getElementById("chat-box");
+    const messages = chatBox.querySelectorAll(".text-message");
+
+    messages.forEach(message => {
+        const originalHTML = message.innerHTML;
+        const highlightedHTML = originalHTML.replace(
+            new RegExp(currentSearchQuery, "gi"),
+            (match) => `<span class="highlight">${match}</span>`
+        );
+        message.innerHTML = highlightedHTML;
+    });
+}
+
+// Function to load chat history when a history button is clicked
 function loadChatHistory(chatId) {
     fetch(`/load_chat_history/${chatId}`)
         .then((response) => response.json())
@@ -466,7 +519,45 @@ function loadChatHistory(chatId) {
                     appendMessage(entry.user, "user-message", [], true); // isHistory = true
                     appendMessage(entry.bot, "bot-message", entry.code, true); // isHistory = true
                 });
+
+                // Highlight the searched word in the chat messages
+                if (currentSearchQuery) {
+                    highlightSearchQuery();
+                }
             }
         })
         .catch((error) => console.error("Error loading chat history:", error));
 }
+
+// Attach the search function to the search button
+document.getElementById("search-button").addEventListener("click", searchChat);
+
+// Enable search on Enter key press
+document.getElementById("search-input").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+        e.preventDefault(); // Prevent default behavior (e.g., form submission)
+        searchChat(); // Trigger search
+    }
+});
+
+// Update the history button creation to include a data attribute for chat ID
+window.onload = function() {
+    fetch('/get_history')
+        .then(response => response.json())
+        .then(data => {
+            const historyBox = document.getElementById('history-box');
+            if (data.history) {
+                data.history.forEach(chat => {
+                    const historyButton = document.createElement("button");
+                    historyButton.classList.add("history-button");
+                    historyButton.innerText = chat.date;  // Show the date of the chat
+                    historyButton.setAttribute("data-chat-id", chat.chat_id); // Add chat ID as data attribute
+                    historyButton.onclick = () => loadChatHistory(chat.chat_id); // On click, load history
+
+                    // Insert the new history button at the top
+                    historyBox.insertBefore(historyButton, historyBox.firstChild);
+                });
+            }
+        })
+        .catch(error => console.error('Error fetching history:', error));
+};
