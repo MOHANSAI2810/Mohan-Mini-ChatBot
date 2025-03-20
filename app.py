@@ -63,6 +63,82 @@ def extract_code(response_text):
 
     return text_without_code, code_blocks
 
+# Weather API Route
+@app.route("/get-weather", methods=["POST"])
+def get_weather():
+    data = request.json
+    city = data.get("city")
+    if not city:
+        return jsonify({"error": "City not provided"}), 400
+
+    api_key = os.getenv("OPENWEATHERMAP_API_KEY")  # Fetch API key from .env
+    url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
+
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        weather_data = response.json()
+
+        if weather_data.get("cod") != 200:
+            return jsonify({"error": "City not found"}), 404
+
+        # Extract relevant weather information
+        temperature = weather_data["main"]["temp"]
+        weather_description = weather_data["weather"][0]["description"]
+        weather_message = f"The weather in {city} is {weather_description} with a temperature of {temperature}°C."
+
+        return jsonify({"success": True, "message": weather_message})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# News API Route
+@app.route("/get-news", methods=["GET"])
+def get_news():
+    api_key = os.getenv("NEWS_API_KEY")  # Fetch API key from .env
+    url = f"https://newsapi.org/v2/top-headlines?country=us&apiKey={api_key}"
+
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        news_data = response.json()
+
+        if news_data.get("status") != "ok":
+            return jsonify({"error": "Failed to fetch news"}), 500
+
+        # Extract top 5 headlines
+        articles = news_data["articles"][:5]
+        news_message = "Here are the latest headlines:\n" + "\n".join([article["title"] for article in articles])
+
+        return jsonify({"success": True, "message": news_message})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# Translation API Route
+@app.route("/translate", methods=["POST"])
+def translate_text():
+    data = request.json
+    text = data.get("text")
+    target_language = data.get("target_language")
+
+    if not text or not target_language:
+        return jsonify({"error": "Text or target language not provided"}), 400
+
+    url = f"https://api.mymemory.translated.net/get?q={text}&langpair=en|{target_language}"
+
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        translation_data = response.json()
+
+        if translation_data.get("responseStatus") != 200:
+            return jsonify({"error": "Translation failed"}), 500
+
+        translated_text = translation_data["responseData"]["translatedText"]
+        return jsonify({"success": True, "translated_text": translated_text})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/upload-file", methods=["POST"])
 def upload_file():
     if "file" not in request.files:

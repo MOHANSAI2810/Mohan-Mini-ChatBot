@@ -182,6 +182,32 @@ function updateSendButton() {
 
 let selectedFile = null; // Store the selected file
 
+async function getWeather(city) {
+    const response = await fetch("/get-weather", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ city }),
+    });
+    const data = await response.json();
+    return data;
+}
+
+async function getNews() {
+    const response = await fetch("/get-news");
+    const data = await response.json();
+    return data;
+}
+
+async function translateText(text, targetLanguage) {
+    const response = await fetch("/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, target_language: targetLanguage }),
+    });
+    const data = await response.json();
+    return data;
+}
+
 function sendMessage() {
     if (isResponsePending) return; // Prevent new requests if a response is pending
 
@@ -190,16 +216,60 @@ function sendMessage() {
 
     if (message === "") return;
 
-    // Display the user's message in the chat
+    // Display the user's message
     appendMessage(message, "user-message");
 
     // Check for custom responses first
     const customResponse = getCustomResponse(message);
     if (customResponse) {
-        // Display the custom response in the chat
         appendMessage(customResponse, "bot-message");
         userInput.value = ""; // Clear the input box
         return; // Exit the function after sending the custom response
+    }
+
+    // Check for weather requests
+    const weatherMatch = message.match(/weather in (.+)/i);
+    if (weatherMatch) {
+        const city = weatherMatch[1];
+        getWeather(city).then(data => {
+            if (data.success) {
+                appendMessage(data.message, "bot-message");
+            } else {
+                appendMessage("Sorry, I couldn't fetch the weather.", "bot-message");
+            }
+        });
+        userInput.value = ""; // Clear the input box
+        return;
+    }
+
+    // Check for news requests
+    if (message.toLowerCase().includes("latest news")) {
+        getNews().then(data => {
+            if (data.success) {
+                appendMessage(data.message, "bot-message");
+            } else {
+                appendMessage("Sorry, I couldn't fetch the news.", "bot-message");
+            }
+        });
+        userInput.value = ""; // Clear the input box
+        return;
+    }
+
+    // Check for translation requests
+    const translationMatch = message.match(/translate (.+) to (\w+)/i);
+    if (translationMatch) {
+        const textToTranslate = translationMatch[1];
+        const targetLanguage = translationMatch[2];
+
+        translateText(textToTranslate, targetLanguage).then(data => {
+            if (data.success) {
+                appendMessage(data.translated_text, "bot-message");
+            } else {
+                appendMessage("Sorry, I couldn't translate that.", "bot-message");
+            }
+        });
+        userInput.value = ""; // Clear the input box
+        return;
     }
 
     // Check if the message is an image name (e.g., ends with .png, .jpg, etc.)
