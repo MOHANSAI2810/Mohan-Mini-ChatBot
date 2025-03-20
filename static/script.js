@@ -182,7 +182,6 @@ function updateSendButton() {
 
 let selectedFile = null; // Store the selected file
 
-
 function sendMessage() {
     if (isResponsePending) return; // Prevent new requests if a response is pending
 
@@ -191,14 +190,23 @@ function sendMessage() {
 
     if (message === "") return;
 
+    // Display the user's message in the chat
+    appendMessage(message, "user-message");
+
+    // Check for custom responses first
+    const customResponse = getCustomResponse(message);
+    if (customResponse) {
+        // Display the custom response in the chat
+        appendMessage(customResponse, "bot-message");
+        userInput.value = ""; // Clear the input box
+        return; // Exit the function after sending the custom response
+    }
+
     // Check if the message is an image name (e.g., ends with .png, .jpg, etc.)
     const isImage = /\.(png|jpg|jpeg)$/i.test(message);
 
     // Check if the message is a file name (e.g., ends with .pdf, .docx, etc.)
     const isFile = /\.(pdf|docx|pptx)$/i.test(message);
-
-    // Display the file name as the user's message
-    appendMessage(message, "user-message");
 
     // Display "Bot is thinking..." message
     const botThinking = document.createElement("div");
@@ -561,3 +569,25 @@ window.onload = function() {
         })
         .catch(error => console.error('Error fetching history:', error));
 };
+// Define custom questions and answers
+const customResponses = {
+    "what is your name": "I am Mohan's Mini Chatbot, and I am here to help you!",
+    "who are you": "I am Mohan's Mini Chatbot, and I am here to help you!",
+    "who is your founder": "My boss is Mr. Mohan.",
+    "who created you": "My boss is Mr. Mohan.",
+    "who is your boss": "My boss is Mr. Mohan.",
+    "what can you do": "I can help you with a variety of tasks, such as answering questions, analyzing files, and more!",
+    "how are you": "I'm fine thankyou!",
+    "what is your purpose": "My purpose is to assist you with your queries and make your life easier.",
+};
+
+// Function to check for custom responses
+function getCustomResponse(userMessage) {
+    const lowerCaseMessage = userMessage.toLowerCase().trim();
+    for (const [question, answer] of Object.entries(customResponses)) {
+        if (lowerCaseMessage.includes(question)) {
+            return answer;
+        }
+    }
+    return null; // Return null if no custom response is found
+}
