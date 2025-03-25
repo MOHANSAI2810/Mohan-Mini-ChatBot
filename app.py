@@ -659,7 +659,6 @@ def login():
         
         if user and bcrypt.checkpw(password.encode('utf-8'), user[2].encode('utf-8')):
             session["username"] = user[0]  # Store username in session
-            flash("You have successfully logged in!", "success")
             return redirect(url_for('chatbot'))  # Corrected: Use route function name
         else:
             flash("Please enter correct details!", "error")
