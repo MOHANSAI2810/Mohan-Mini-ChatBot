@@ -219,6 +219,49 @@ function sendMessage() {
     // Display the user's message
     appendMessage(message, "user-message");
 
+    // Check for YouTube URL first
+    if (isYouTubeUrl(message)) {
+        // Display "Bot is thinking..." message
+        const botThinking = document.createElement("div");
+        botThinking.classList.add("message", "bot-message");
+        botThinking.innerHTML = "Analyzing YouTube video...";
+        botThinking.id = "thinking-message";
+        document.getElementById("chat-box").appendChild(botThinking);
+
+        // Send to YouTube processing endpoint
+        // In your sendMessage() function where you call /process-youtube:
+        fetch("/process-youtube", {
+        method: "POST",
+        headers: { 
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        },
+        body: JSON.stringify({ url: message })
+        })
+        .then(response => response.json())
+        .then(data => {
+        document.getElementById("thinking-message").remove();
+
+        if (data.success) {
+            // Successful response with transcript
+            displayYouTubeResponse(data);
+        } else if (data.message) {
+            // No transcript available
+            appendMessage(data.message, "bot-message");
+        } else {
+            // Other errors
+            appendMessage(data.error || "Error processing YouTube video", "bot-message");
+        }
+        })
+        .catch(error => {
+        document.getElementById("thinking-message").remove();
+        console.error("Error processing YouTube video:", error);
+        appendMessage("Error processing YouTube video", "bot-message");
+        });
+
+        userInput.value = "";
+        return;
+    }
     // Check for custom responses first
     const customResponse = getCustomResponse(message);
     if (customResponse) {
@@ -660,4 +703,46 @@ function getCustomResponse(userMessage) {
         }
     }
     return null; // Return null if no custom response is found
+}
+
+function isYouTubeUrl(message) {
+    const patterns = [
+        /^(https?:\/\/)?(www\.)?youtube\.com\/watch\?v=/i,
+        /^(https?:\/\/)?(www\.)?youtu\.be\//i,
+        /^(https?:\/\/)?(www\.)?youtube\.com\/embed\//i
+    ];
+    return patterns.some(pattern => pattern.test(message.trim()));
+}
+
+function displayYouTubeResponse(data) {
+    let message;
+    
+    if (data.error) {
+        message = `Error: ${data.error}`;
+    } 
+    else if (data.success) {
+        // Successful analysis with transcript
+        message = data.summary;
+    } 
+    else {
+        // Fallback analysis without transcript
+        message = data.message || "Couldn't analyze this video";
+    }
+    
+    // Simple text append without HTML
+    appendMessage(message, "bot-message");
+}
+
+// Helper functions
+function formatDuration(duration) {
+    // Convert ISO 8601 duration to HH:MM:SS
+    const match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
+    const hours = (match[1] ? match[1].slice(0, -1) : '0').padStart(2, '0');
+    const mins = (match[2] ? match[2].slice(0, -1) : '0').padStart(2, '0');
+    const secs = (match[3] ? match[3].slice(0, -1) : '0').padStart(2, '0');
+    return `${hours}:${mins}:${secs}`;
+}
+
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }

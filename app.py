@@ -7,6 +7,8 @@ import smtplib
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, jsonify, redirect, session, flash, url_for
 import google.generativeai as genai
+from googleapiclient.discovery import build
+from youtube_transcript_api import YouTubeTranscriptApi
 from pymongo import MongoClient
 from datetime import datetime
 import secrets
@@ -44,6 +46,219 @@ def get_db_connection():
         port=int(os.getenv("MYSQL_ADDON_PORT", 3306))  # Default to 3306
     )
     return connection
+
+youtube = build('youtube', 'v3', developerKey=os.getenv('YOUTUBE_API_KEY'))
+
+def extract_video_id(url):
+    """Extract video ID from various YouTube URL formats"""
+    patterns = [
+        r'(?:https?:\/\/)?(?:www\.)?youtu\.be\/([a-zA-Z0-9_-]+)',
+        r'(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)',
+        r'(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([a-zA-Z0-9_-]+)',
+        r'(?:https?:\/\/)?(?:www\.)?youtube\.com\/v\/([a-zA-Z0-9_-]+)',
+        r'(?:https?:\/\/)?(?:www\.)?youtube\.com\/shorts\/([a-zA-Z0-9_-]+)'
+    ]
+    for pattern in patterns:
+        match = re.search(pattern, url)
+        if match:
+            return match.group(1)
+    return None
+
+def get_video_details(video_id):
+    """Get video details including title, channel, and statistics"""
+    response = youtube.videos().list(
+        part="snippet,statistics",
+        id=video_id
+    ).execute()
+    
+    if not response.get('items'):
+        return None
+        
+    snippet = response['items'][0]['snippet']
+    stats = response['items'][0]['statistics']
+    
+    return {
+        'title': snippet['title'],
+        'channel': snippet['channelTitle'],
+        'views': stats.get('viewCount', 'N/A'),
+        'likes': stats.get('likeCount', 'N/A'),
+        'thumbnail': snippet['thumbnails']['high']['url'],
+        'published': snippet['publishedAt'][:10]  # YYYY-MM-DD
+    }
+def get_transcript(video_id):
+    """Improved transcript fetching with modern API handling"""
+    try:
+        from youtube_transcript_api import YouTubeTranscriptApi
+        from youtube_transcript_api._errors import TranscriptsDisabled
+        
+        try:
+            # Try to get English transcript first
+            transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=['en'])
+            return " ".join([entry['text'] for entry in transcript])
+            
+        except TranscriptsDisabled:
+            # Try any available language if English fails
+            transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+            transcript = transcript_list.find_transcript(
+                [t.language_code for t in transcript_list]
+            ).fetch()
+            return " ".join([entry['text'] for entry in transcript])
+            
+    except Exception as e:
+        print(f"Transcript error for {video_id}: {str(e)}")
+        return None
+    
+
+def human_format(num):
+    """Format large numbers"""
+    num = int(num)
+    if num >= 1_000_000:
+        return f"{num/1_000_000:.1f}M"
+    if num >= 1_000:
+        return f"{num/1_000:.1f}K"
+    return str(num)
+
+@app.route("/process-youtube", methods=["POST"])
+def process_youtube():
+    if "username" not in session:
+        return jsonify({"error": "User not logged in"}), 401
+
+    try:
+        data = request.get_json()
+        if not data or "url" not in data:
+            return jsonify({"error": "URL not provided"}), 400
+            
+        url = data["url"]
+        video_id = extract_video_id(url)
+        
+        if not video_id:
+            return jsonify({"error": "Invalid YouTube URL"}), 400
+
+        # Initialize chat_key here for all paths
+        chat_key = get_today_chat_key(session["username"])
+        
+        # Get video details
+        video_details = get_video_details(video_id)
+        if not video_details:
+            return jsonify({"error": "Video not found"}), 404
+                
+        # Get transcript
+        try:
+            transcript = get_transcript(video_id)
+            if not transcript:
+                raise Exception("No transcript available")
+                
+            # Generate summary
+            summary = generate_video_summary(transcript, video_details)
+            
+            chat_entry = {
+                "user": url,
+                "bot": summary,
+                "code": [],
+                "youtube_data": {
+                    **video_details,
+                    "video_id": video_id
+                }
+            }
+            
+            collection.update_one(
+                {"_id": chat_key},
+                {"$push": {"chat_history": chat_entry}},
+                upsert=True
+            )
+            
+            return jsonify({
+                "success": True,
+                "summary": summary,
+                "youtube_data": video_details
+            })
+            
+        except Exception as transcript_error:
+            # Fallback analysis when transcript fails
+            fallback_analysis = analyze_without_transcript(video_id, video_details)
+            
+            chat_entry = {
+                "user": url,
+                "bot": fallback_analysis,
+                "code": [],
+                "youtube_data": {
+                    **video_details,
+                    "video_id": video_id,
+                    "no_transcript": True
+                }
+            }
+            
+            collection.update_one(
+                {"_id": chat_key},
+                {"$push": {"chat_history": chat_entry}},
+                upsert=True
+            )
+            
+            return jsonify({
+                "success": False,
+                "message": fallback_analysis,
+                "youtube_data": video_details
+            })
+            
+    except Exception as e:
+        return jsonify({"error": f"Error processing video: {str(e)}"}), 500
+    
+def generate_video_summary(transcript, video_details):
+    """Generate concise 5-10 line text summary"""
+    prompt = f"""
+    Create a short 5-10 line summary of this YouTube video in paragraph form. Include only:
+    1. Content type (animation, tutorial, match highlights etc.)
+    2. 2-3 key moments or topics
+    3. Notable technical aspects (if relevant)
+    4. View count and channel name
+    5. Overall impression
+    
+    Keep it concise - no bullet points or section headers. Just 5-10 clear sentences.
+    
+    Video Details:
+    Title: {video_details['title']}
+    Channel: {video_details['channel']}
+    Views: {video_details['views']}
+    
+    Transcript Excerpt:
+    {transcript[:2000]}... [truncated if long]
+    """
+    
+    try:
+        response = model.generate_content(prompt)
+        # Clean up the response
+        summary = response.text.replace('\n', ' ').strip()
+        return ' '.join(summary.split())  # Remove extra spaces
+    except Exception as e:
+        print(f"Summary error: {str(e)}")
+        return default_fallback_summary(video_details)
+
+def default_fallback_summary(video_details):
+    """Fallback when analysis fails"""
+    return (
+        f"This {video_details['channel']} video titled '{video_details['title']}' "
+        f"has {human_format(video_details['views'])} views. "
+        "Basic details are available but full analysis couldn't be generated."
+    )
+
+def analyze_without_transcript(video_id, video_details):
+    """Concise analysis when no transcript exists"""
+    prompt = f"""
+    In 5-7 sentences, summarize this YouTube video based only on its metadata:
+    Title: {video_details['title']}
+    Channel: {video_details['channel']}
+    Views: {video_details['views']}
+    Published: {video_details['published']}
+    
+    Provide only: content type, likely topics, and audience appeal.
+    """
+    response = model.generate_content(prompt)
+    return response.text.strip()
+
+def get_today_chat_key(username):
+    """Generate today's date key for the user's chat document"""
+    today_date = datetime.now().strftime("%Y-%m-%d")
+    return f"chat on {today_date} - {username}"
 
 # Inappropriate keywords filter
 INAPPROPRIATE_KEYWORDS = ["adult", "porn", "sex", "violence", "drugs", "hate"]
