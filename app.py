@@ -63,7 +63,6 @@ def extract_video_id(url):
         if match:
             return match.group(1)
     return None
-
 def get_video_details(video_id):
     """Get video details including title, channel, and statistics"""
     response = youtube.videos().list(
