@@ -820,7 +820,7 @@ def chat():
             image_url = fetch_google_image(f"photo of {query}")
         
         if image_url:
-            bot_reply = f"Here's a {query} image: {image_url}"
+            bot_reply = f"Here is the direct image link for '{query}':\n{image_url}"
             # Save to DB
             collection.update_one(
                 {"_id": chat_key},
