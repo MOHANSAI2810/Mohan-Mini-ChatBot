@@ -47,6 +47,35 @@ def get_db_connection():
     )
     return connection
 
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+GOOGLE_CSE_ID = os.getenv("GOOGLE_CX")
+
+def fetch_google_image(query):
+    """Smart image fetcher with query rewriting"""
+    try:
+        # Rewrite problematic queries
+        if "human" in query.lower():
+            query = "person portrait"  # More likely to return allowed results
+        
+        # Force "photo of X" format for better results
+        if not query.startswith("photo of "):
+            query = f"photo of {query}"
+        
+        url = f"https://www.googleapis.com/customsearch/v1?q={query}&key={GOOGLE_API_KEY}&cx={GOOGLE_CSE_ID}&searchType=image&imgSize=large&imgType=photo&safe=medium"  # medium = less restrictive
+        
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        
+        if data.get("items"):
+            return data["items"][0]["link"]
+        return None
+        
+    except Exception as e:
+        print(f"Image search error: {str(e)}")
+        return None
+
+
 youtube = build('youtube', 'v3', developerKey=os.getenv('YOUTUBE_API_KEY'))
 
 def extract_video_id(url):
@@ -774,6 +803,34 @@ def chat():
 
     if not user_message:
         return jsonify({"error": "No message received"}), 400
+    
+    image_match = re.search(
+        r"(?:generate|provide|show|display)\s+(?:a|an|the)?\s*(.+?)\s*(?:image|picture|photo)",
+        user_message, 
+        re.IGNORECASE
+    )
+
+    if image_match:
+        query = image_match.group(1).strip().lower()
+        
+        # Special case handling
+        if query in ["human", "person", "people"]:
+            query = "person portrait"
+        
+        image_url = fetch_google_image(query)
+        
+        if image_url:
+            return jsonify({
+                "reply": f"🔍 Found image for '{query}':\n{image_url}",
+                "code": []
+            })
+        else:
+            return jsonify({
+                "reply": f"⚠️ Couldn't find an image. Try different keywords like '{random.choice(['animal', 'landscape', 'object'])}'",
+                "code": []
+            })
+
+
 
     try:
         # Generate the key for today's chat document
@@ -802,7 +859,11 @@ def chat():
         # Store chat history in MongoDB
         chat_entry = {"user": user_message, "bot": text_response, "code": code_blocks}
         chat_history.append(chat_entry)
-        collection.update_one({"_id": chat_key}, {"$set": {"chat_history": chat_history}})
+        collection.update_one(
+            {"_id": chat_key},
+            {"$push": {"chat_history": {"user": user_message, "bot": text_response, "code": code_blocks}}},
+            upsert=True
+        )
 
         return jsonify({"reply": text_response, "code": code_blocks})
 
