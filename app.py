@@ -809,28 +809,31 @@ def chat():
         user_message, 
         re.IGNORECASE
     )
-
+    chat_key = get_today_chat_key(username)
     if image_match:
-        query = image_match.group(1).strip().lower()
-        
-        # Special case handling
-        if query in ["human", "person", "people"]:
-            query = "person portrait"
+        query = image_match.group(1).strip()
+        if not query:
+            return jsonify({"reply": "Please specify what image you want", "code": []})
         
         image_url = fetch_google_image(query)
+        if not image_url:  # Try again with "photo of" prefix if first attempt fails
+            image_url = fetch_google_image(f"photo of {query}")
         
         if image_url:
-            return jsonify({
-                "reply": f"🔍 Found image for '{query}':\n{image_url}",
-                "code": []
-            })
+            bot_reply = f"Here's a {query} image: {image_url}"
+            # Save to DB
+            collection.update_one(
+                {"_id": chat_key},
+                {"$push": {"chat_history": {
+                    "user": user_message,
+                    "bot": bot_reply,
+                    "code": [],
+                    "image_url": image_url  # Store separately for easy access
+                }}}
+            )
+            return jsonify({"reply": bot_reply, "code": []})
         else:
-            return jsonify({
-                "reply": f"⚠️ Couldn't find an image. Try different keywords like '{random.choice(['animal', 'landscape', 'object'])}'",
-                "code": []
-            })
-
-
+            return jsonify({"reply": f"Couldn't find a {query} image. Try different keywords", "code": []})
 
     try:
         # Generate the key for today's chat document
