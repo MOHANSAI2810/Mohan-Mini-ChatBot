@@ -25,7 +25,18 @@ function appendMessage(content, sender, codeBlocks = [], isHistory = false) {
         icon.src = userIconPath; // User icon from HTML
         messageContainer.appendChild(icon); // Add icon after the message
     }
-
+    if (isHistory && content.includes("🔍 Found image for")) {
+        const urlMatch = content.match(/https?:\/\/[^\s]+/);
+        if (urlMatch) {
+            const imageUrl = urlMatch[0];
+            messageDiv.innerHTML = `
+                <p>${content.split('\n')[0]}</p>
+                <a href="${imageUrl}" target="_blank">${imageUrl}</a>
+                <img src="${imageUrl}" style="max-width: 200px; margin-top: 10px;">
+            `;
+            return;
+        }
+    }
     let messageParts = content.split("[CODE_BLOCK]"); // Custom separator
 
     function typeText(index) {
