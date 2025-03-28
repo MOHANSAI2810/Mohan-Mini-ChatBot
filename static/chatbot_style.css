@@ -125,7 +125,7 @@ body {
     background: rgba(255, 255, 255, 0.07);
     border-radius: 15px;
     backdrop-filter: blur(15px);
-    border: 2px solid rgba(222, 255, 5, 0.979);
+    border: 2px solid rgba(0, 187, 255, 0.979);
     box-shadow: 0px 10px 25px rgba(255, 105, 30, 0.3);
     display: flex;
     flex-direction: column;
@@ -141,7 +141,7 @@ body {
     background: rgba(255, 255, 255, 0.07);
     border-radius: 15px;
     backdrop-filter: blur(15px);
-    border: 2px solid rgba(222, 255, 5, 0.979);
+    border: 2px solid rgba(0, 187, 255, 0.979);
     box-shadow: 0px 10px 25px rgba(255, 105, 30, 0.3);
     display: flex;
     flex-direction: column;
@@ -166,7 +166,7 @@ body {
     padding: 5px;
     font-size: 10px;
     font-weight: bold;
-    background: linear-gradient(to right, #ff4500, #e91e63);
+    background: linear-gradient(to right, #8f97d1, #0627e3);
     color: white;
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
@@ -178,7 +178,7 @@ body {
     padding: 5px;
     font-size: 10px;
     font-weight: bold;
-    background: linear-gradient(to right, #ff4500, #e91e63);
+    background: linear-gradient(to right, #8f97d1, #0627e3);
     color: white;
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
@@ -225,13 +225,13 @@ body {
     color: white;
     align-self: flex-end;
     text-align: right;
-    background: linear-gradient(to right, #00f260, #0575e6);
-    box-shadow: 0px 0px 8px #00f260;
+    background: linear-gradient(to right, #39298c, #0575e6);
+    box-shadow: 0px 0px 8px #2cd6fc;
 }
 
 /* Bot messages */
 .bot-message {
-    background: linear-gradient(to right, #2c3e50, #4b79a1);
+    background: linear-gradient(to right, #39298c, #0575e6);
     color: white;
     align-self: flex-start;
     text-align: left;
@@ -373,12 +373,12 @@ body {
 
 .input-container textarea:focus {
     background: rgba(255, 255, 255, 0.25);
-    border: 2px solid #ff512f;
+    border: 2px solid rgba(255, 255, 255, 0.25);
 }
 
 /* Buttons in Input Container */
 .input-container button {
-    background: linear-gradient(to right, #ff416c, #ff4b2b);
+    background: linear-gradient(to right, #08b5ea, #08b5ea);
     border: none;
     color: white;
     border-radius: 20px;
@@ -390,7 +390,7 @@ body {
 }
 
 .input-container button:hover {
-    background: linear-gradient(to right, #ff4b2b, #ff512f);
+    background: linear-gradient(to right, #08b5ea, #08b5ea);
     transform: scale(1.05);
 }
 .typing-indicator {
@@ -499,7 +499,7 @@ body {
 .history-button {
     display: block;
     width: 100%; /* Full width of container */
-    background-color: #FF4500;
+    background: linear-gradient(to right, #08b5ea, #08b5ea);
     color: white;
     padding: 12px 15px;
     margin: 5px; /* Remove margin */
@@ -516,14 +516,14 @@ body {
 }
 
 .history-button:hover {
-    background-color: #e91e63; /* Change color on hover */
+    background: linear-gradient(to right, #08b5ea, #08b5ea); /* Change color on hover */
 }
 .toggle-button {
     top: 5px;
     left: 5px;
 }
 .user-box .logout-btn {
-    background: red;
+    background: linear-gradient(to right, #08b5ea, #08b5ea);
     color: white;
     border: none;
     padding: 5px 10px;
