@@ -495,19 +495,24 @@ body {
     object-fit: cover;
 }
 
-/* History Button */
+/* History Buttons */
 .history-button {
     display: block;
+    width: 100%; /* Full width of container */
     background-color: #FF4500;
-    width: 380px;
     color: white;
-    padding: 10px;
-    margin: 5px;
+    padding: 12px 15px;
+    margin: 5px; /* Remove margin */
     border-radius: 8px;
     cursor: pointer;
-    text-align: center;
+    text-align: left;
     font-weight: bold;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: none;
+    transition: background-color 0.3s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .history-button:hover {
@@ -551,7 +556,8 @@ body {
     margin-left: 10px;
     transition: background-color 0.3s ease;
     position: absolute;
-    left: 25%;
+    left: 0%;
+    top: 0%
 }
 
 
