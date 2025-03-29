@@ -178,9 +178,9 @@ body {
     padding: 5px;
     font-size: 10px;
     font-weight: bold;
-    background: linear-gradient(to right, #8f97d1, #0627e3);
+    background: linear-gradient(to right, #0627e3, #8f97d1);
     color: white;
-    border-top-left-radius: 15px;
+    border-top-left-radius: 15px; 
     border-top-right-radius: 15px;
     width: 100%;
 }
