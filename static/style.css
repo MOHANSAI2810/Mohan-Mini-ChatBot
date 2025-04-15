@@ -59,7 +59,7 @@ h2 {
     font-size: 2rem;
     margin-bottom: 20px;
     color: #fff; /* White text for header */
-    background: linear-gradient(135deg, #12a514, #c4d80e); /* Gradient text background */
+    background: linear-gradient(135deg, #0afffc, #01ffda); /* Gradient text background */
     -webkit-background-clip: text;
     color: transparent;
     font-weight: bold;
@@ -86,7 +86,7 @@ button {
     padding: 10px;
     border: none;
     border-radius: 5px;
-    background: linear-gradient(45deg, #ff416c, #ff4b2b);
+    background: linear-gradient(45deg, #3707f9, #0ccec6);
     color: white;
     font-size: 16px;
     cursor: pointer;
