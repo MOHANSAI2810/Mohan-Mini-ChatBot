@@ -1,4 +1,4 @@
-Flask
+flask
 python-dotenv
 bcrypt
 google-generativeai
@@ -10,3 +10,4 @@ requests
 PyPDF2
 python-docx
 python-pptx
+gunicorn
